@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -261,6 +262,50 @@
   .back-link { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-tertiary); text-decoration:none; margin-bottom:8px; }
   .back-link:hover { color:var(--text-primary); }
   .infinite-badge { display:inline-block; font-size:11px; font-weight:500; background:#FFF3E0; color:#E65100; padding:3px 10px; border-radius:20px; margin-left:8px; vertical-align:middle; }
+
+  /* ── HINTS ── */
+  .hint-section { width:100%; display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .hint-trigger-btn {
+    width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 16px; background:transparent; border:1.5px dashed var(--border);
+    border-radius:10px; cursor:pointer; font-size:14px; color:var(--text-secondary);
+    font-family:'DM Sans',sans-serif; transition:border-color .2s, color .2s;
+  }
+  .hint-trigger-btn:hover { border-color:var(--text-tertiary); color:var(--text-primary); background:var(--bg); }
+  .hint-trigger-btn.open { border-style:solid; border-color:var(--text-tertiary); }
+  .hint-trigger-btn:disabled { opacity:.35; cursor:not-allowed; }
+  .hint-count-badge { font-size:11px; font-weight:600; background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:2px 8px; color:var(--text-tertiary); }
+  .hint-options { display:none; flex-direction:column; gap:8px; }
+  .hint-options.open { display:flex; }
+  .hint-options-label { font-size:11px; font-weight:600; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.6px; padding:0 2px; }
+  .hint-option-btn {
+    width:100%; display:flex; align-items:center; gap:12px;
+    padding:12px 14px; background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; cursor:pointer; text-align:left; font-family:'DM Sans',sans-serif;
+    transition:border-color .15s, background .15s;
+  }
+  .hint-option-btn:hover:not(.revealed) { border-color:var(--text-tertiary); background:var(--bg); }
+  .hint-option-btn.revealed { cursor:default; }
+  .hint-option-btn.revealed.region     { border-color:#93c5fd; background:#eff6ff; }
+  .hint-option-btn.revealed.conference { border-color:#fcd34d; background:#fffbeb; }
+  .hint-option-btn.revealed.colors     { border-color:#c4b5fd; background:#f5f3ff; }
+  .hint-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .hint-icon.region     { background:#eff6ff; }
+  .hint-icon.conference { background:#fffbeb; }
+  .hint-icon.colors     { background:#f5f3ff; }
+  .hint-text-wrap { flex:1; }
+  .hint-type-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text-tertiary); margin-bottom:2px; }
+  .hint-option-btn.revealed.region     .hint-type-label { color:#3b82f6; }
+  .hint-option-btn.revealed.conference .hint-type-label { color:#d97706; }
+  .hint-option-btn.revealed.colors     .hint-type-label { color:#7c3aed; }
+  .hint-preview { font-size:13px; color:var(--text-tertiary); font-style:italic; }
+  .hint-revealed-value { font-size:14px; font-weight:500; color:var(--text-primary); display:none; }
+  .hint-option-btn.revealed .hint-preview { display:none; }
+  .hint-option-btn.revealed .hint-revealed-value { display:block; }
+  .hint-arrow { font-size:13px; color:var(--text-tertiary); flex-shrink:0; }
+  .color-swatches { display:flex; gap:6px; margin-top:4px; }
+  .swatch { width:20px; height:20px; border-radius:4px; border:1px solid rgba(0,0,0,.1); }
+
 </style>
 </head>
 <body>
@@ -302,6 +347,45 @@
 
   <div class="guesses-container" id="guessSlots"></div>
 
+  <!-- HINT SYSTEM -->
+  <div class="hint-section" id="hintSection">
+    <button class="hint-trigger-btn" id="hintTriggerBtn" onclick="toggleHintPanel()">
+      <span>💡</span>
+      <span>Use a Hint</span>
+      <span class="hint-count-badge" id="hintCountBadge">3 remaining</span>
+    </button>
+    <div class="hint-options" id="hintOptions">
+      <span class="hint-options-label">Choose a hint to reveal</span>
+      <button class="hint-option-btn region" id="hintBtn-region" onclick="revealHint('region')">
+        <div class="hint-icon region">🗺</div>
+        <div class="hint-text-wrap">
+          <div class="hint-type-label">Region</div>
+          <div class="hint-preview">Which part of the US is the school in?</div>
+          <div class="hint-revealed-value" id="hintVal-region"></div>
+        </div>
+        <span class="hint-arrow">›</span>
+      </button>
+      <button class="hint-option-btn conference" id="hintBtn-conference" onclick="revealHint('conference')">
+        <div class="hint-icon conference">🏆</div>
+        <div class="hint-text-wrap">
+          <div class="hint-type-label">Conference</div>
+          <div class="hint-preview">What athletic conference does the school compete in?</div>
+          <div class="hint-revealed-value" id="hintVal-conference"></div>
+        </div>
+        <span class="hint-arrow">›</span>
+      </button>
+      <button class="hint-option-btn colors" id="hintBtn-colors" onclick="revealHint('colors')">
+        <div class="hint-icon colors">🎨</div>
+        <div class="hint-text-wrap">
+          <div class="hint-type-label">School Colors</div>
+          <div class="hint-preview">What are the school's primary colors?</div>
+          <div class="hint-revealed-value" id="hintVal-colors"></div>
+        </div>
+        <span class="hint-arrow">›</span>
+      </button>
+    </div>
+  </div>
+
   <div class="input-area" id="inputArea">
     <input type="text" id="guessInput" placeholder="Type a college name…" autocomplete="off" spellcheck="false"/>
     <button class="submit-btn" onclick="submitGuess()">Guess</button>
@@ -329,372 +413,372 @@ const PLAYERS = [
   {name:"Dyson Daniels",team:"Atlanta Hawks",pos:"SG",nbaId:"1631105",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2022,draftTeam:"New Orleans Pelicans",draftPick:8},
   {name:"Luka Garza",team:"Boston Celtics",pos:"C",nbaId:"1630568",college:"Iowa",conference:"Big Ten",region:"Midwest",colors:["#FFCD00", "#000000"],draftRound:2,draftYear:2021,draftTeam:"Detroit Pistons",draftPick:52},
   {name:"Jalen Johnson",team:"Atlanta Hawks",pos:"SF",nbaId:"1630552",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2021,draftTeam:"Atlanta Hawks",draftPick:20},
-  {name:"Luke Kennard",team:"Los Angeles Lakers",pos:"SG",nbaId:"1628370",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Detroit Pistons",draftPick:12},
+  {name:"Luke Kennard",team:"Los Angeles Lakers",pos:"SG",nbaId:"1628379",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Detroit Pistons",draftPick:12},
   {name:"Vit Krejci",team:"Atlanta Hawks",pos:"PG",nbaId:"1631221",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:2,draftYear:2021,draftTeam:"Oklahoma City Thunder",draftPick:37},
   {name:"Asa Newell",team:"Atlanta Hawks",pos:"PF",nbaId:"1642102",college:"None (HS)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2025,draftTeam:"Atlanta Hawks",draftPick:14},
   {name:"Onyeka Okongwu",team:"Atlanta Hawks",pos:"C",nbaId:"1630168",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2020,draftTeam:"Atlanta Hawks",draftPick:6},
   {name:"Kristaps Porzingis",team:"Atlanta Hawks",pos:"C",nbaId:"204001",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2015,draftTeam:"New York Knicks",draftPick:4},
   {name:"Zaccharie Risacher",team:"Atlanta Hawks",pos:"SF",nbaId:"1641700",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2024,draftTeam:"Atlanta Hawks",draftPick:1},
-  {name:"Keaton Wallace",team:"Atlanta Hawks",pos:"SG",nbaId:"1630552",college:"Texas-San Antonio",conference:"Sun Belt",region:"South",colors:["#F15A22", "#002147"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
+  {name:"Keaton Wallace",team:"Atlanta Hawks",pos:"SG",nbaId:"1630811",college:"Texas-San Antonio",conference:"Sun Belt",region:"South",colors:["#F15A22", "#002147"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
   {name:"Trae Young",team:"Washington Wizards",pos:"PG",nbaId:"1629027",college:"Oklahoma",conference:"Big 12",region:"South",colors:["#841617", "#FDF9D8"],draftRound:1,draftYear:2018,draftTeam:"Dallas Mavericks",draftPick:5},
-  {name:"Grant Williams",team:"Charlotte Hornets",pos:"PF",nbaId:"1629650",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"Boston Celtics",draftPick:22},
-  {name:"Caleb Houstan",team:"Atlanta Hawks",pos:"SF",nbaId:"1631224",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2022,draftTeam:"Orlando Magic",draftPick:32},
+  {name:"Grant Williams",team:"Charlotte Hornets",pos:"PF",nbaId:"1629684",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"Boston Celtics",draftPick:22},
+  {name:"Caleb Houstan",team:"Atlanta Hawks",pos:"SF",nbaId:"1631216",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2022,draftTeam:"Orlando Magic",draftPick:32},
   {name:"Jaylen Brown",team:"Boston Celtics",pos:"SG",nbaId:"1627759",college:"California",conference:"Pac-12",region:"West",colors:["#003262", "#FDB515"],draftRound:1,draftYear:2016,draftTeam:"Boston Celtics",draftPick:3},
-  {name:"Noah Clowney",team:"Brooklyn Nets",pos:"PF",nbaId:"1641695",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Brooklyn Nets",draftPick:21},
-  {name:"Sam Hauser",team:"Boston Celtics",pos:"SF",nbaId:"1630251",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
-  {name:"Josh Minott",team:"Brooklyn Nets",pos:"SF",nbaId:"1631219",college:"Memphis",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Minnesota Timberwolves",draftPick:45},
+  {name:"Noah Clowney",team:"Brooklyn Nets",pos:"PF",nbaId:"1641730",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Brooklyn Nets",draftPick:21},
+  {name:"Sam Hauser",team:"Boston Celtics",pos:"SF",nbaId:"1630573",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
+  {name:"Josh Minott",team:"Brooklyn Nets",pos:"SF",nbaId:"1631169",college:"Memphis",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Minnesota Timberwolves",draftPick:45},
   {name:"Payton Pritchard",team:"Boston Celtics",pos:"PG",nbaId:"1630202",college:"Oregon",conference:"Pac-12",region:"West",colors:["#154733", "#FEE123"],draftRound:1,draftYear:2020,draftTeam:"Boston Celtics",draftPick:26},
-  {name:"Baylor Scheierman",team:"Boston Celtics",pos:"SG",nbaId:"1641722",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Boston Celtics",draftPick:30},
+  {name:"Baylor Scheierman",team:"Boston Celtics",pos:"SG",nbaId:"1631248",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Boston Celtics",draftPick:30},
   {name:"Jayson Tatum",team:"Boston Celtics",pos:"SF",nbaId:"1628369",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Boston Celtics",draftPick:3},
   {name:"Anfernee Simons",team:"Boston Celtics",pos:"SG",nbaId:"1629014",college:"None (HS)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2018,draftTeam:"Portland Trail Blazers",draftPick:24},
   {name:"Xavier Tillman",team:"Charlotte Hornets",pos:"C",nbaId:"1630214",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Memphis Grizzlies",draftPick:35},
-  {name:"Jordan Walsh",team:"Boston Celtics",pos:"SF",nbaId:"1641693",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Boston Celtics",draftPick:38},
+  {name:"Jordan Walsh",team:"Boston Celtics",pos:"SF",nbaId:"1642386",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Boston Celtics",draftPick:38},
   {name:"Derrick White",team:"Boston Celtics",pos:"PG",nbaId:"1628401",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:1,draftYear:2017,draftTeam:"San Antonio Spurs",draftPick:29},
-  {name:"Danny Wolf",team:"Brooklyn Nets",pos:"C",nbaId:"1641743",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2024,draftTeam:"Boston Celtics",draftPick:45},
-  {name:"Ron Harper Jr.",team:"Boston Celtics",pos:"SF",nbaId:"1630580",college:"Rutgers",conference:"Big Ten",region:"Northeast",colors:["#CC0033", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
-  {name:"Amari Williams",team:"Boston Celtics",pos:"C",nbaId:"1631230",college:"Drexel",conference:"CAA",region:"Northeast",colors:["#07294D", "#FFC600"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"Danny Wolf",team:"Brooklyn Nets",pos:"C",nbaId:"1642874",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2024,draftTeam:"Boston Celtics",draftPick:45},
+  {name:"Ron Harper Jr.",team:"Boston Celtics",pos:"SF",nbaId:"1631199",college:"Rutgers",conference:"Big Ten",region:"Northeast",colors:["#CC0033", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"Amari Williams",team:"Boston Celtics",pos:"C",nbaId:"1642873",college:"Drexel",conference:"CAA",region:"Northeast",colors:["#07294D", "#FFC600"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
   {name:"Nic Claxton",team:"Brooklyn Nets",pos:"C",nbaId:"1629651",college:"Georgia",conference:"SEC",region:"Southeast",colors:["#BA0C2F", "#000000"],draftRound:2,draftYear:2019,draftTeam:"Brooklyn Nets",draftPick:31},
   {name:"Terance Mann",team:"Brooklyn Nets",pos:"SG",nbaId:"1629611",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:2,draftYear:2019,draftTeam:"Los Angeles Clippers",draftPick:48},
-  {name:"Tyrese Martin",team:"Philadelphia 76ers",pos:"SF",nbaId:"1631209",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Atlanta Hawks",draftPick:51},
+  {name:"Tyrese Martin",team:"Philadelphia 76ers",pos:"SF",nbaId:"1631213",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Atlanta Hawks",draftPick:51},
   {name:"Cam Thomas",team:"Milwaukee Bucks",pos:"SG",nbaId:"1630560",college:"LSU",conference:"SEC",region:"Southeast",colors:["#461D7C", "#FDD023"],draftRound:1,draftYear:2021,draftTeam:"Brooklyn Nets",draftPick:27},
   {name:"Ziaire Williams",team:"Brooklyn Nets",pos:"SF",nbaId:"1630533",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:1,draftYear:2021,draftTeam:"Memphis Grizzlies",draftPick:10},
-  {name:"Jalen Wilson",team:"Brooklyn Nets",pos:"SF",nbaId:"1641698",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:2,draftYear:2023,draftTeam:"Brooklyn Nets",draftPick:51},
-  {name:"Tyson Etienne",team:"Brooklyn Nets",pos:"SG",nbaId:"1630537",college:"Wichita State",conference:"American",region:"South",colors:["#000000", "#FFCD00"],draftRound:2,draftYear:2022,draftTeam:"Oklahoma City Thunder",draftPick:37},
-  {name:"E.J. Liddell",team:"Brooklyn Nets",pos:"PF",nbaId:"1630553",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"New Orleans Pelicans",draftPick:41},
+  {name:"Jalen Wilson",team:"Brooklyn Nets",pos:"SF",nbaId:"1642390",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:2,draftYear:2023,draftTeam:"Brooklyn Nets",draftPick:51},
+  {name:"Tyson Etienne",team:"Brooklyn Nets",pos:"SG",nbaId:"1630623",college:"Wichita State",conference:"American",region:"South",colors:["#000000", "#FFCD00"],draftRound:2,draftYear:2022,draftTeam:"Oklahoma City Thunder",draftPick:37},
+  {name:"E.J. Liddell",team:"Brooklyn Nets",pos:"PF",nbaId:"1630604",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"New Orleans Pelicans",draftPick:41},
   {name:"LaMelo Ball",team:"Charlotte Hornets",pos:"PG",nbaId:"1630163",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2020,draftTeam:"Charlotte Hornets",draftPick:3},
-  {name:"Moussa Diabate",team:"Charlotte Hornets",pos:"PF",nbaId:"1631223",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2022,draftTeam:"Los Angeles Clippers",draftPick:43},
+  {name:"Moussa Diabate",team:"Charlotte Hornets",pos:"PF",nbaId:"1631217",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2022,draftTeam:"Los Angeles Clippers",draftPick:43},
   {name:"Josh Green",team:"Charlotte Hornets",pos:"SG",nbaId:"1630182",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2020,draftTeam:"Dallas Mavericks",draftPick:18},
-  {name:"Sion James",team:"Charlotte Hornets",pos:"SF",nbaId:"1631244",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Dallas Mavericks",draftPick:44},
-  {name:"Ryan Kalkbrenner",team:"Charlotte Hornets",pos:"C",nbaId:"1641744",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Charlotte Hornets",draftPick:36},
-  {name:"Kon Knueppel",team:"Charlotte Hornets",pos:"SG",nbaId:"1642106",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Charlotte Hornets",draftPick:6},
-  {name:"Liam McNeeley",team:"Charlotte Hornets",pos:"SF",nbaId:"1642107",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Charlotte Hornets",draftPick:14},
-  {name:"Tre Mann",team:"Charlotte Hornets",pos:"SG",nbaId:"1630535",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2021,draftTeam:"Oklahoma City Thunder",draftPick:18},
-  {name:"Brandon Miller",team:"Charlotte Hornets",pos:"SF",nbaId:"1641695",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Charlotte Hornets",draftPick:2},
+  {name:"Sion James",team:"Charlotte Hornets",pos:"SF",nbaId:"1642883",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Dallas Mavericks",draftPick:44},
+  {name:"Ryan Kalkbrenner",team:"Charlotte Hornets",pos:"C",nbaId:"1641750",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Charlotte Hornets",draftPick:36},
+  {name:"Kon Knueppel",team:"Charlotte Hornets",pos:"SG",nbaId:"1642851",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Charlotte Hornets",draftPick:6},
+  {name:"Liam McNeeley",team:"Charlotte Hornets",pos:"SF",nbaId:"1642862",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Charlotte Hornets",draftPick:14},
+  {name:"Tre Mann",team:"Charlotte Hornets",pos:"SG",nbaId:"1630544",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2021,draftTeam:"Oklahoma City Thunder",draftPick:18},
+  {name:"Brandon Miller",team:"Charlotte Hornets",pos:"SF",nbaId:"1641706",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Charlotte Hornets",draftPick:2},
   {name:"Mason Plumlee",team:"San Antonio Spurs",pos:"C",nbaId:"203486",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2013,draftTeam:"Brooklyn Nets",draftPick:22},
   {name:"Collin Sexton",team:"Chicago Bulls",pos:"PG",nbaId:"1629012",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Cleveland Cavaliers",draftPick:8},
-  {name:"Miles Bridges",team:"Charlotte Hornets",pos:"SF",nbaId:"1628388",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Charlotte Hornets",draftPick:12},
-  {name:"Antonio Reeves",team:"Charlotte Hornets",pos:"SG",nbaId:"1641745",college:"Illinois State",conference:"MVC",region:"Midwest",colors:["#CC0000", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
+  {name:"Miles Bridges",team:"Charlotte Hornets",pos:"SF",nbaId:"1628970",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Charlotte Hornets",draftPick:12},
+  {name:"Antonio Reeves",team:"Charlotte Hornets",pos:"SG",nbaId:"1641810",college:"Illinois State",conference:"MVC",region:"Midwest",colors:["#CC0000", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
   {name:"Matas Buzelis",team:"Chicago Bulls",pos:"SF",nbaId:"1642109",college:"None (G-League)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2024,draftTeam:"Chicago Bulls",draftPick:11},
   {name:"Pat Connaughton",team:"Charlotte Hornets",pos:"SG",nbaId:"1626192",college:"Notre Dame",conference:"ACC",region:"Midwest",colors:["#0C2340", "#AE9142"],draftRound:2,draftYear:2015,draftTeam:"Portland Trail Blazers",draftPick:41},
   {name:"Zach Collins",team:"Chicago Bulls",pos:"C",nbaId:"1628380",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2017,draftTeam:"Portland Trail Blazers",draftPick:10},
   {name:"Ayo Dosunmu",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1630245",college:"Illinois",conference:"Big Ten",region:"Midwest",colors:["#E84A27", "#13294B"],draftRound:2,draftYear:2021,draftTeam:"Chicago Bulls",draftPick:38},
   {name:"Josh Giddey",team:"Chicago Bulls",pos:"SG",nbaId:"1630581",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2021,draftTeam:"Oklahoma City Thunder",draftPick:6},
-  {name:"Kevin Huerter",team:"Detroit Pistons",pos:"SG",nbaId:"1628988",college:"Maryland",conference:"Big Ten",region:"Northeast",colors:["#E03A3E", "#FFD520"],draftRound:1,draftYear:2018,draftTeam:"Atlanta Hawks",draftPick:19},
+  {name:"Kevin Huerter",team:"Detroit Pistons",pos:"SG",nbaId:"1628989",college:"Maryland",conference:"Big Ten",region:"Northeast",colors:["#E03A3E", "#FFD520"],draftRound:1,draftYear:2018,draftTeam:"Atlanta Hawks",draftPick:19},
   {name:"Tre Jones",team:"Chicago Bulls",pos:"PG",nbaId:"1630200",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"San Antonio Spurs",draftPick:41},
-  {name:"Isaac Okoro",team:"Chicago Bulls",pos:"SF",nbaId:"1630170",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2020,draftTeam:"Cleveland Cavaliers",draftPick:5},
-  {name:"Julian Phillips",team:"Minnesota Timberwolves",pos:"SF",nbaId:"1641746",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Chicago Bulls",draftPick:35},
-  {name:"Jalen Smith",team:"Chicago Bulls",pos:"C",nbaId:"1630196",college:"Maryland",conference:"Big Ten",region:"Northeast",colors:["#E03A3E", "#FFD520"],draftRound:1,draftYear:2020,draftTeam:"Phoenix Suns",draftPick:10},
+  {name:"Isaac Okoro",team:"Chicago Bulls",pos:"SF",nbaId:"1630171",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2020,draftTeam:"Cleveland Cavaliers",draftPick:5},
+  {name:"Julian Phillips",team:"Minnesota Timberwolves",pos:"SF",nbaId:"1642416",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Chicago Bulls",draftPick:35},
+  {name:"Jalen Smith",team:"Chicago Bulls",pos:"C",nbaId:"1630188",college:"Maryland",conference:"Big Ten",region:"Northeast",colors:["#E03A3E", "#FFD520"],draftRound:1,draftYear:2020,draftTeam:"Phoenix Suns",draftPick:10},
   {name:"Dalen Terry",team:"Philadelphia 76ers",pos:"SF",nbaId:"1631130",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2022,draftTeam:"Chicago Bulls",draftPick:18},
   {name:"Nikola Vucevic",team:"Boston Celtics",pos:"C",nbaId:"202696",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2011,draftTeam:"Philadelphia 76ers",draftPick:16},
   {name:"Patrick Williams",team:"Chicago Bulls",pos:"PF",nbaId:"1630172",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:1,draftYear:2020,draftTeam:"Chicago Bulls",draftPick:4},
   {name:"Coby White",team:"Charlotte Hornets",pos:"SG",nbaId:"1629632",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"Chicago Bulls",draftPick:7},
   {name:"Jarrett Allen",team:"Cleveland Cavaliers",pos:"C",nbaId:"1628386",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Brooklyn Nets",draftPick:22},
-  {name:"Thomas Bryant",team:"Cleveland Cavaliers",pos:"C",nbaId:"1628048",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:2,draftYear:2017,draftTeam:"Utah Jazz",draftPick:42},
+  {name:"Thomas Bryant",team:"Cleveland Cavaliers",pos:"C",nbaId:"1628418",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:2,draftYear:2017,draftTeam:"Utah Jazz",draftPick:42},
   {name:"De'Andre Hunter",team:"Sacramento Kings",pos:"SF",nbaId:"1629631",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:1,draftYear:2019,draftTeam:"Atlanta Hawks",draftPick:4},
-  {name:"Sam Merrill",team:"Cleveland Cavaliers",pos:"SG",nbaId:"1630225",college:"Utah State",conference:"Mountain West",region:"West",colors:["#00285E", "#7A9BB5"],draftRound:0,draftYear:2020,draftTeam:"Undrafted",draftPick:0},
+  {name:"Sam Merrill",team:"Cleveland Cavaliers",pos:"SG",nbaId:"1630241",college:"Utah State",conference:"Mountain West",region:"West",colors:["#00285E", "#7A9BB5"],draftRound:0,draftYear:2020,draftTeam:"Undrafted",draftPick:0},
   {name:"Donovan Mitchell",team:"Cleveland Cavaliers",pos:"SG",nbaId:"1628378",college:"Louisville",conference:"ACC",region:"Southeast",colors:["#AD0000", "#000000"],draftRound:1,draftYear:2017,draftTeam:"Denver Nuggets",draftPick:13},
   {name:"Evan Mobley",team:"Cleveland Cavaliers",pos:"C",nbaId:"1630596",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2021,draftTeam:"Cleveland Cavaliers",draftPick:3},
   {name:"Larry Nance Jr.",team:"Cleveland Cavaliers",pos:"PF",nbaId:"1626204",college:"Wyoming",conference:"Mountain West",region:"West",colors:["#492B1D", "#FFC425"],draftRound:2,draftYear:2015,draftTeam:"Los Angeles Lakers",draftPick:27},
   {name:"Craig Porter Jr.",team:"Cleveland Cavaliers",pos:"PG",nbaId:"1631289",college:"Wichita State",conference:"American",region:"South",colors:["#000000", "#FFCD00"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
-  {name:"Jaylon Tyson",team:"Cleveland Cavaliers",pos:"SF",nbaId:"1641748",college:"California",conference:"Pac-12",region:"West",colors:["#003262", "#FDB515"],draftRound:2,draftYear:2023,draftTeam:"Cleveland Cavaliers",draftPick:49},
-  {name:"Dean Wade",team:"Cleveland Cavaliers",pos:"PF",nbaId:"1629149",college:"Kansas State",conference:"Big 12",region:"Midwest",colors:["#512888", "#D1B878"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
+  {name:"Jaylon Tyson",team:"Cleveland Cavaliers",pos:"SF",nbaId:"1642417",college:"California",conference:"Pac-12",region:"West",colors:["#003262", "#FDB515"],draftRound:2,draftYear:2023,draftTeam:"Cleveland Cavaliers",draftPick:49},
+  {name:"Dean Wade",team:"Cleveland Cavaliers",pos:"PF",nbaId:"1629731",college:"Kansas State",conference:"Big 12",region:"Midwest",colors:["#512888", "#D1B878"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
   {name:"Darius Garland",team:"Los Angeles Clippers",pos:"PG",nbaId:"1629636",college:"Vanderbilt",conference:"SEC",region:"Southeast",colors:["#866D4B", "#000000"],draftRound:1,draftYear:2019,draftTeam:"Cleveland Cavaliers",draftPick:5},
-  {name:"Max Christie",team:"Dallas Mavericks",pos:"SG",nbaId:"1631190",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Los Angeles Lakers",draftPick:35},
-  {name:"Cooper Flagg",team:"Dallas Mavericks",pos:"PF",nbaId:"1642355",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Dallas Mavericks",draftPick:1},
+  {name:"Max Christie",team:"Dallas Mavericks",pos:"SG",nbaId:"1631108",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Los Angeles Lakers",draftPick:35},
+  {name:"Cooper Flagg",team:"Dallas Mavericks",pos:"PF",nbaId:"1642843",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Dallas Mavericks",draftPick:1},
   {name:"Daniel Gafford",team:"Dallas Mavericks",pos:"C",nbaId:"1629655",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:2,draftYear:2019,draftTeam:"Chicago Bulls",draftPick:38},
   {name:"Kyrie Irving",team:"Dallas Mavericks",pos:"PG",nbaId:"202681",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2011,draftTeam:"Cleveland Cavaliers",draftPick:1},
   {name:"Luka Doncic",team:"Dallas Mavericks",pos:"PG",nbaId:"1629029",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2018,draftTeam:"Atlanta Hawks",draftPick:3},
-  {name:"Dereck Lively II",team:"Dallas Mavericks",pos:"C",nbaId:"1641717",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Dallas Mavericks",draftPick:12},
-  {name:"Naji Marshall",team:"Dallas Mavericks",pos:"SF",nbaId:"1629744",college:"Xavier",conference:"Big East",region:"Midwest",colors:["#002878", "#9E7E38"],draftRound:0,draftYear:2020,draftTeam:"Undrafted",draftPick:0},
-  {name:"Caleb Martin",team:"Dallas Mavericks",pos:"SF",nbaId:"1629655",college:"Nevada",conference:"Mountain West",region:"West",colors:["#003366", "#807F84"],draftRound:2,draftYear:2019,draftTeam:"Charlotte Hornets",draftPick:36},
-  {name:"Ryan Nembhard",team:"Dallas Mavericks",pos:"PG",nbaId:"1641750",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:2,draftYear:2024,draftTeam:"Indiana Pacers",draftPick:45},
-  {name:"Dwight Powell",team:"Dallas Mavericks",pos:"C",nbaId:"204456",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:2,draftYear:2014,draftTeam:"Boston Celtics",draftPick:45},
+  {name:"Dereck Lively II",team:"Dallas Mavericks",pos:"C",nbaId:"1641726",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Dallas Mavericks",draftPick:12},
+  {name:"Naji Marshall",team:"Dallas Mavericks",pos:"SF",nbaId:"1630230",college:"Xavier",conference:"Big East",region:"Midwest",colors:["#002878", "#9E7E38"],draftRound:0,draftYear:2020,draftTeam:"Undrafted",draftPick:0},
+  {name:"Caleb Martin",team:"Dallas Mavericks",pos:"SF",nbaId:"1628998",college:"Nevada",conference:"Mountain West",region:"West",colors:["#003366", "#807F84"],draftRound:2,draftYear:2019,draftTeam:"Charlotte Hornets",draftPick:36},
+  {name:"Ryan Nembhard",team:"Dallas Mavericks",pos:"PG",nbaId:"1642948",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:2,draftYear:2024,draftTeam:"Indiana Pacers",draftPick:45},
+  {name:"Dwight Powell",team:"Dallas Mavericks",pos:"C",nbaId:"203939",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:2,draftYear:2014,draftTeam:"Boston Celtics",draftPick:45},
   {name:"D'Angelo Russell",team:"Washington Wizards",pos:"PG",nbaId:"1626156",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:1,draftYear:2015,draftTeam:"Los Angeles Lakers",draftPick:2},
   {name:"Klay Thompson",team:"Dallas Mavericks",pos:"SG",nbaId:"202691",college:"Washington State",conference:"Pac-12",region:"West",colors:["#981E32", "#5E6A71"],draftRound:1,draftYear:2011,draftTeam:"Golden State Warriors",draftPick:11},
   {name:"P.J. Washington",team:"Dallas Mavericks",pos:"PF",nbaId:"1629023",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"Charlotte Hornets",draftPick:12},
-  {name:"Spencer Jones",team:"Denver Nuggets",pos:"SF",nbaId:"1641751",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Dallas Mavericks",draftPick:60},
+  {name:"Spencer Jones",team:"Denver Nuggets",pos:"SF",nbaId:"1642413",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Dallas Mavericks",draftPick:60},
   {name:"Michael Porter Jr.",team:"Brooklyn Nets",pos:"SF",nbaId:"1629008",college:"Missouri",conference:"SEC",region:"Midwest",colors:["#5C2D91", "#F2A900"],draftRound:1,draftYear:2018,draftTeam:"Denver Nuggets",draftPick:14},
   {name:"Bruce Brown",team:"Denver Nuggets",pos:"SG",nbaId:"1628971",college:"Miami",conference:"ACC",region:"Southeast",colors:["#F47321", "#005030"],draftRound:2,draftYear:2018,draftTeam:"Detroit Pistons",draftPick:42},
   {name:"Aaron Gordon",team:"Denver Nuggets",pos:"PF",nbaId:"203932",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2014,draftTeam:"Orlando Magic",draftPick:4},
   {name:"Tim Hardaway Jr.",team:"Denver Nuggets",pos:"SG",nbaId:"203501",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2013,draftTeam:"New York Knicks",draftPick:24},
-  {name:"DaRon Holmes II",team:"Denver Nuggets",pos:"PF",nbaId:"1641721",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:1,draftYear:2024,draftTeam:"Denver Nuggets",draftPick:10},
+  {name:"DaRon Holmes II",team:"Denver Nuggets",pos:"PF",nbaId:"1642256",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:1,draftYear:2024,draftTeam:"Denver Nuggets",draftPick:10},
   {name:"Cam Johnson",team:"Denver Nuggets",pos:"SF",nbaId:"1629661",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"Phoenix Suns",draftPick:11},
   {name:"Nikola Jokic",team:"Denver Nuggets",pos:"C",nbaId:"203999",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:2,draftYear:2014,draftTeam:"Denver Nuggets",draftPick:41},
   {name:"Jamal Murray",team:"Denver Nuggets",pos:"PG",nbaId:"1627750",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2016,draftTeam:"Denver Nuggets",draftPick:7},
-  {name:"Zeke Nnaji",team:"Denver Nuggets",pos:"PF",nbaId:"1630188",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2020,draftTeam:"Denver Nuggets",draftPick:22},
-  {name:"Jalen Pickett",team:"Denver Nuggets",pos:"PG",nbaId:"1641752",college:"Penn State",conference:"Big Ten",region:"Northeast",colors:["#1E407C", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Denver Nuggets",draftPick:32},
-  {name:"Julian Strawther",team:"Denver Nuggets",pos:"SG",nbaId:"1641699",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2023,draftTeam:"Denver Nuggets",draftPick:29},
-  {name:"Hunter Tyson",team:"Denver Nuggets",pos:"SF",nbaId:"1631272",college:"Clemson",conference:"ACC",region:"Southeast",colors:["#F66733", "#522D80"],draftRound:2,draftYear:2022,draftTeam:"Denver Nuggets",draftPick:51},
-  {name:"Peyton Watson",team:"Denver Nuggets",pos:"SF",nbaId:"1631140",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2022,draftTeam:"Denver Nuggets",draftPick:30},
+  {name:"Zeke Nnaji",team:"Denver Nuggets",pos:"PF",nbaId:"1630192",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2020,draftTeam:"Denver Nuggets",draftPick:22},
+  {name:"Jalen Pickett",team:"Denver Nuggets",pos:"PG",nbaId:"1642418",college:"Penn State",conference:"Big Ten",region:"Northeast",colors:["#1E407C", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Denver Nuggets",draftPick:32},
+  {name:"Julian Strawther",team:"Denver Nuggets",pos:"SG",nbaId:"1631124",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2023,draftTeam:"Denver Nuggets",draftPick:29},
+  {name:"Hunter Tyson",team:"Denver Nuggets",pos:"SF",nbaId:"1641816",college:"Clemson",conference:"ACC",region:"Southeast",colors:["#F66733", "#522D80"],draftRound:2,draftYear:2022,draftTeam:"Denver Nuggets",draftPick:51},
+  {name:"Peyton Watson",team:"Denver Nuggets",pos:"SF",nbaId:"1631212",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2022,draftTeam:"Denver Nuggets",draftPick:30},
   {name:"Cade Cunningham",team:"Detroit Pistons",pos:"PG",nbaId:"1630595",college:"Oklahoma State",conference:"Big 12",region:"South",colors:["#FF6600", "#000000"],draftRound:1,draftYear:2021,draftTeam:"Detroit Pistons",draftPick:1},
-  {name:"Jalen Duren",team:"Detroit Pistons",pos:"C",nbaId:"1631109",college:"Memphis",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:1,draftYear:2022,draftTeam:"Charlotte Hornets",draftPick:13},
+  {name:"Jalen Duren",team:"Detroit Pistons",pos:"C",nbaId:"1631105",college:"Memphis",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:1,draftYear:2022,draftTeam:"Charlotte Hornets",draftPick:13},
   {name:"Tobias Harris",team:"Detroit Pistons",pos:"PF",nbaId:"202699",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2011,draftTeam:"Charlotte Bobcats",draftPick:19},
   {name:"Javonte Green",team:"Detroit Pistons",pos:"SF",nbaId:"1629750",college:"Fayetteville State",conference:"CIAA",region:"Southeast",colors:["#003087", "#A89968"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
-  {name:"Chaz Lanier",team:"Detroit Pistons",pos:"SG",nbaId:"1641755",college:"Tennessee",conference:"ASUN",region:"Southeast",colors:["#003087", "#C8A951"],draftRound:1,draftYear:2025,draftTeam:"Detroit Pistons",draftPick:20},
+  {name:"Chaz Lanier",team:"Detroit Pistons",pos:"SG",nbaId:"1642404",college:"Tennessee",conference:"ASUN",region:"Southeast",colors:["#003087", "#C8A951"],draftRound:1,draftYear:2025,draftTeam:"Detroit Pistons",draftPick:20},
   {name:"Caris LeVert",team:"Detroit Pistons",pos:"SG",nbaId:"1627747",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2016,draftTeam:"Brooklyn Nets",draftPick:20},
-  {name:"Paul Reed Jr.",team:"Detroit Pistons",pos:"C",nbaId:"1630207",college:"DePaul",conference:"Big East",region:"Midwest",colors:["#005596", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Philadelphia 76ers",draftPick:58},
+  {name:"Paul Reed Jr.",team:"Detroit Pistons",pos:"C",nbaId:"1630194",college:"DePaul",conference:"Big East",region:"Midwest",colors:["#005596", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Philadelphia 76ers",draftPick:58},
   {name:"Duncan Robinson",team:"Detroit Pistons",pos:"SG",nbaId:"1629130",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:0,draftYear:2018,draftTeam:"Undrafted",draftPick:0},
-  {name:"Marcus Sasser",team:"Detroit Pistons",pos:"SG",nbaId:"1641756",college:"Houston",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Houston Rockets",draftPick:57},
+  {name:"Marcus Sasser",team:"Detroit Pistons",pos:"SG",nbaId:"1642420",college:"Houston",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Houston Rockets",draftPick:57},
   {name:"Isaiah Stewart",team:"Detroit Pistons",pos:"C",nbaId:"1630191",college:"Washington",conference:"Pac-12",region:"West",colors:["#4B2E83", "#E8D3A2"],draftRound:1,draftYear:2020,draftTeam:"Detroit Pistons",draftPick:16},
   {name:"Jaden Ivey",team:"Chicago Bulls",pos:"PG",nbaId:"1631093",college:"Purdue",conference:"Big Ten",region:"Midwest",colors:["#CEB888", "#000000"],draftRound:1,draftYear:2022,draftTeam:"Detroit Pistons",draftPick:5},
   {name:"Jimmy Butler",team:"Golden State Warriors",pos:"SF",nbaId:"202710",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:1,draftYear:2011,draftTeam:"Chicago Bulls",draftPick:30},
   {name:"Stephen Curry",team:"Golden State Warriors",pos:"PG",nbaId:"201939",college:"Davidson",conference:"Atlantic 10",region:"Southeast",colors:["#CC0000", "#000000"],draftRound:1,draftYear:2009,draftTeam:"Golden State Warriors",draftPick:7},
   {name:"Draymond Green",team:"Golden State Warriors",pos:"PF",nbaId:"203110",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:2,draftYear:2012,draftTeam:"Golden State Warriors",draftPick:35},
-  {name:"Buddy Hield",team:"Atlanta Hawks",pos:"SG",nbaId:"203524",college:"Oklahoma",conference:"Big 12",region:"South",colors:["#841617", "#FDF9D8"],draftRound:1,draftYear:2016,draftTeam:"New Orleans Pelicans",draftPick:6},
+  {name:"Buddy Hield",team:"Atlanta Hawks",pos:"SG",nbaId:"1627741",college:"Oklahoma",conference:"Big 12",region:"South",colors:["#841617", "#FDF9D8"],draftRound:1,draftYear:2016,draftTeam:"New Orleans Pelicans",draftPick:6},
   {name:"Al Horford",team:"Golden State Warriors",pos:"C",nbaId:"201143",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2007,draftTeam:"Atlanta Hawks",draftPick:3},
-  {name:"Trayce Jackson-Davis",team:"Toronto Raptors",pos:"C",nbaId:"1630588",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Golden State Warriors",draftPick:57},
+  {name:"Trayce Jackson-Davis",team:"Toronto Raptors",pos:"C",nbaId:"1631218",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"Golden State Warriors",draftPick:57},
   {name:"Jonathan Kuminga",team:"Golden State Warriors",pos:"SF",nbaId:"1630542",college:"None (G-League)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2021,draftTeam:"Golden State Warriors",draftPick:7},
   {name:"De'Anthony Melton",team:"Golden State Warriors",pos:"SG",nbaId:"1629001",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:2,draftYear:2018,draftTeam:"Houston Rockets",draftPick:46},
   {name:"Moses Moody",team:"Golden State Warriors",pos:"SG",nbaId:"1630541",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2021,draftTeam:"Golden State Warriors",draftPick:14},
   {name:"Gary Payton II",team:"Golden State Warriors",pos:"SG",nbaId:"1627780",college:"Oregon State",conference:"Pac-12",region:"West",colors:["#DC4405", "#000000"],draftRound:0,draftYear:2016,draftTeam:"Undrafted",draftPick:0},
-  {name:"Brandin Podziemski",team:"Golden State Warriors",pos:"SG",nbaId:"1641694",college:"Santa Clara",conference:"WCC",region:"West",colors:["#862633", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Golden State Warriors",draftPick:19},
-  {name:"Quenton Post",team:"Golden State Warriors",pos:"C",nbaId:"1642201",college:"Boston College",conference:"ACC",region:"Northeast",colors:["#98002E", "#BC9B6A"],draftRound:2,draftYear:2025,draftTeam:"Golden State Warriors",draftPick:44},
-  {name:"Will Richard",team:"Golden State Warriors",pos:"SF",nbaId:"1641758",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2024,draftTeam:"Golden State Warriors",draftPick:26},
-  {name:"Pat Spencer",team:"Golden State Warriors",pos:"PG",nbaId:"1629990",college:"Northwestern",conference:"Big Ten",region:"Midwest",colors:["#4E2A84", "#FFFFFF"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
+  {name:"Brandin Podziemski",team:"Golden State Warriors",pos:"SG",nbaId:"1641764",college:"Santa Clara",conference:"WCC",region:"West",colors:["#862633", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Golden State Warriors",draftPick:19},
+  {name:"Quenton Post",team:"Golden State Warriors",pos:"C",nbaId:"1642366",college:"Boston College",conference:"ACC",region:"Northeast",colors:["#98002E", "#BC9B6A"],draftRound:2,draftYear:2025,draftTeam:"Golden State Warriors",draftPick:44},
+  {name:"Will Richard",team:"Golden State Warriors",pos:"SF",nbaId:"1642954",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2024,draftTeam:"Golden State Warriors",draftPick:26},
+  {name:"Pat Spencer",team:"Golden State Warriors",pos:"PG",nbaId:"1630311",college:"Northwestern",conference:"Big Ten",region:"Midwest",colors:["#4E2A84", "#FFFFFF"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
   {name:"Steven Adams",team:"Houston Rockets",pos:"C",nbaId:"203500",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2013,draftTeam:"Oklahoma City Thunder",draftPick:12},
   {name:"Clint Capela",team:"Houston Rockets",pos:"C",nbaId:"203991",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2014,draftTeam:"Houston Rockets",draftPick:25},
   {name:"Kevin Durant",team:"Houston Rockets",pos:"SF",nbaId:"201142",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:1,draftYear:2007,draftTeam:"Seattle SuperSonics",draftPick:2},
-  {name:"Tari Eason",team:"Houston Rockets",pos:"SF",nbaId:"1631133",college:"LSU",conference:"SEC",region:"Southeast",colors:["#461D7C", "#FDD023"],draftRound:1,draftYear:2022,draftTeam:"Houston Rockets",draftPick:17},
+  {name:"Tari Eason",team:"Houston Rockets",pos:"SF",nbaId:"1631106",college:"LSU",conference:"SEC",region:"Southeast",colors:["#461D7C", "#FDD023"],draftRound:1,draftYear:2022,draftTeam:"Houston Rockets",draftPick:17},
   {name:"Dorian Finney-Smith",team:"Houston Rockets",pos:"SF",nbaId:"1627827",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:0,draftYear:2016,draftTeam:"Undrafted",draftPick:0},
   {name:"Jeff Green",team:"Houston Rockets",pos:"PF",nbaId:"201145",college:"Georgetown",conference:"Big East",region:"Northeast",colors:["#041E42", "#8D817B"],draftRound:1,draftYear:2007,draftTeam:"Seattle SuperSonics",draftPick:5},
-  {name:"Aaron Holiday",team:"Houston Rockets",pos:"PG",nbaId:"1628978",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2018,draftTeam:"Indiana Pacers",draftPick:23},
-  {name:"Josh Okogie",team:"Houston Rockets",pos:"SG",nbaId:"1628982",college:"Georgia Tech",conference:"ACC",region:"Southeast",colors:["#B3A369", "#003057"],draftRound:1,draftYear:2018,draftTeam:"Minnesota Timberwolves",draftPick:20},
+  {name:"Aaron Holiday",team:"Houston Rockets",pos:"PG",nbaId:"1628988",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2018,draftTeam:"Indiana Pacers",draftPick:23},
+  {name:"Josh Okogie",team:"Houston Rockets",pos:"SG",nbaId:"1629006",college:"Georgia Tech",conference:"ACC",region:"Southeast",colors:["#B3A369", "#003057"],draftRound:1,draftYear:2018,draftTeam:"Minnesota Timberwolves",draftPick:20},
   {name:"Alperen Sengun",team:"Houston Rockets",pos:"C",nbaId:"1631167",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2021,draftTeam:"Houston Rockets",draftPick:16},
-  {name:"Reed Sheppard",team:"Houston Rockets",pos:"SG",nbaId:"1641726",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Houston Rockets",draftPick:3},
+  {name:"Reed Sheppard",team:"Houston Rockets",pos:"SG",nbaId:"1642263",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Houston Rockets",draftPick:3},
   {name:"Jabari Smith Jr.",team:"Houston Rockets",pos:"PF",nbaId:"1631095",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2022,draftTeam:"Houston Rockets",draftPick:3},
-  {name:"Jae'Sean Tate",team:"Houston Rockets",pos:"SF",nbaId:"1628404",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
+  {name:"Jae'Sean Tate",team:"Houston Rockets",pos:"SF",nbaId:"1630256",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
   {name:"Amen Thompson",team:"Houston Rockets",pos:"SF",nbaId:"1641702",college:"None (G-League)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2023,draftTeam:"Houston Rockets",draftPick:4},
-  {name:"Cam Whitmore",team:"Washington Wizards",pos:"SF",nbaId:"1641759",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Houston Rockets",draftPick:20},
-  {name:"JD Davison",team:"Houston Rockets",pos:"PG",nbaId:"1631139",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Boston Celtics",draftPick:53},
-  {name:"Tony Bradley",team:"Indiana Pacers",pos:"C",nbaId:"1628391",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Utah Jazz",draftPick:28},
-  {name:"Jay Huff",team:"Indiana Pacers",pos:"C",nbaId:"1630556",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
-  {name:"Isaiah Jackson",team:"Los Angeles Clippers",pos:"C",nbaId:"1630601",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2021,draftTeam:"Indiana Pacers",draftPick:22},
-  {name:"Bennedict Mathurin",team:"Indiana Pacers",pos:"SG",nbaId:"1631212",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2022,draftTeam:"Indiana Pacers",draftPick:6},
-  {name:"Andrew Nembhard",team:"Indiana Pacers",pos:"PG",nbaId:"1631217",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:2,draftYear:2022,draftTeam:"Indiana Pacers",draftPick:31},
+  {name:"Cam Whitmore",team:"Washington Wizards",pos:"SF",nbaId:"1641715",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Houston Rockets",draftPick:20},
+  {name:"JD Davison",team:"Houston Rockets",pos:"PG",nbaId:"1631120",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Boston Celtics",draftPick:53},
+  {name:"Tony Bradley",team:"Indiana Pacers",pos:"C",nbaId:"1628396",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Utah Jazz",draftPick:28},
+  {name:"Jay Huff",team:"Indiana Pacers",pos:"C",nbaId:"1630643",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
+  {name:"Isaiah Jackson",team:"Los Angeles Clippers",pos:"C",nbaId:"1630543",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2021,draftTeam:"Indiana Pacers",draftPick:22},
+  {name:"Bennedict Mathurin",team:"Indiana Pacers",pos:"SG",nbaId:"1631097",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2022,draftTeam:"Indiana Pacers",draftPick:6},
+  {name:"Andrew Nembhard",team:"Indiana Pacers",pos:"PG",nbaId:"1629614",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:2,draftYear:2022,draftTeam:"Indiana Pacers",draftPick:31},
   {name:"Aaron Nesmith",team:"Indiana Pacers",pos:"SF",nbaId:"1630174",college:"Vanderbilt",conference:"SEC",region:"Southeast",colors:["#866D4B", "#000000"],draftRound:1,draftYear:2020,draftTeam:"Boston Celtics",draftPick:14},
-  {name:"Ben Sheppard",team:"Indiana Pacers",pos:"SG",nbaId:"1641716",college:"Belmont",conference:"Missouri Valley",region:"Southeast",colors:["#1B3159", "#CF1F27"],draftRound:1,draftYear:2023,draftTeam:"Indiana Pacers",draftPick:26},
+  {name:"Ben Sheppard",team:"Indiana Pacers",pos:"SG",nbaId:"1641767",college:"Belmont",conference:"Missouri Valley",region:"Southeast",colors:["#1B3159", "#CF1F27"],draftRound:1,draftYear:2023,draftTeam:"Indiana Pacers",draftPick:26},
   {name:"Pascal Siakam",team:"Indiana Pacers",pos:"PF",nbaId:"1627783",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2016,draftTeam:"Toronto Raptors",draftPick:27},
   {name:"Obi Toppin",team:"Indiana Pacers",pos:"PF",nbaId:"1630167",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:1,draftYear:2020,draftTeam:"New York Knicks",draftPick:8},
   {name:"Myles Turner",team:"Milwaukee Bucks",pos:"C",nbaId:"1626167",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:1,draftYear:2015,draftTeam:"Indiana Pacers",draftPick:11},
-  {name:"Jarace Walker",team:"Indiana Pacers",pos:"PF",nbaId:"1641698",college:"Houston",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Indiana Pacers",draftPick:8},
+  {name:"Jarace Walker",team:"Indiana Pacers",pos:"PF",nbaId:"1641716",college:"Houston",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Indiana Pacers",draftPick:8},
   {name:"James Wiseman",team:"Indiana Pacers",pos:"C",nbaId:"1630164",college:"Memphis",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:1,draftYear:2020,draftTeam:"Golden State Warriors",draftPick:2},
   {name:"Tyrese Haliburton",team:"Indiana Pacers",pos:"PG",nbaId:"1630169",college:"Iowa State",conference:"Big 12",region:"Midwest",colors:["#C8102E", "#F1BE48"],draftRound:1,draftYear:2020,draftTeam:"Sacramento Kings",draftPick:12},
-  {name:"Quenton Jackson",team:"Indiana Pacers",pos:"SG",nbaId:"1631261",college:"Texas Tech",conference:"Big 12",region:"South",colors:["#CC0000", "#000000"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"Quenton Jackson",team:"Indiana Pacers",pos:"SG",nbaId:"1631245",college:"Texas Tech",conference:"Big 12",region:"South",colors:["#CC0000", "#000000"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
   {name:"Fred VanVleet",team:"Houston Rockets",pos:"PG",nbaId:"1627832",college:"Wichita State",conference:"American",region:"South",colors:["#000000", "#FFCD00"],draftRound:0,draftYear:2016,draftTeam:"Undrafted",draftPick:0},
   {name:"Nicolas Batum",team:"LA Clippers",pos:"SF",nbaId:"201587",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2008,draftTeam:"Portland Trail Blazers",draftPick:25},
   {name:"Bradley Beal",team:"LA Clippers",pos:"SG",nbaId:"203078",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2012,draftTeam:"Washington Wizards",draftPick:3},
-  {name:"Kobe Brown",team:"Indiana Pacers",pos:"SF",nbaId:"1641761",college:"Missouri",conference:"SEC",region:"Midwest",colors:["#5C2D91", "#F2A900"],draftRound:2,draftYear:2023,draftTeam:"Los Angeles Clippers",draftPick:49},
+  {name:"Kobe Brown",team:"Indiana Pacers",pos:"SF",nbaId:"1641738",college:"Missouri",conference:"SEC",region:"Midwest",colors:["#5C2D91", "#F2A900"],draftRound:2,draftYear:2023,draftTeam:"Los Angeles Clippers",draftPick:49},
   {name:"John Collins",team:"LA Clippers",pos:"PF",nbaId:"1628381",college:"Wake Forest",conference:"ACC",region:"Southeast",colors:["#9E7E38", "#000000"],draftRound:1,draftYear:2017,draftTeam:"Atlanta Hawks",draftPick:19},
-  {name:"Kris Dunn",team:"LA Clippers",pos:"PG",nbaId:"1627755",college:"Providence",conference:"Big East",region:"Northeast",colors:["#002147", "#FFFFFF"],draftRound:1,draftYear:2016,draftTeam:"Minnesota Timberwolves",draftPick:5},
+  {name:"Kris Dunn",team:"LA Clippers",pos:"PG",nbaId:"1627739",college:"Providence",conference:"Big East",region:"Northeast",colors:["#002147", "#FFFFFF"],draftRound:1,draftYear:2016,draftTeam:"Minnesota Timberwolves",draftPick:5},
   {name:"James Harden",team:"Cleveland Cavaliers",pos:"SG",nbaId:"201935",college:"Arizona State",conference:"Pac-12",region:"West",colors:["#8C1D40", "#FFC627"],draftRound:1,draftYear:2009,draftTeam:"Oklahoma City Thunder",draftPick:3},
   {name:"Derrick Jones Jr.",team:"LA Clippers",pos:"SF",nbaId:"1627884",college:"UNLV",conference:"Mountain West",region:"West",colors:["#CF0A2C", "#808080"],draftRound:0,draftYear:2016,draftTeam:"Undrafted",draftPick:0},
   {name:"Kawhi Leonard",team:"LA Clippers",pos:"SF",nbaId:"202695",college:"San Diego State",conference:"Mountain West",region:"West",colors:["#CC0000", "#000000"],draftRound:1,draftYear:2011,draftTeam:"Indiana Pacers",draftPick:15},
   {name:"Norman Powell",team:"Miami Heat",pos:"SG",nbaId:"1626181",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:2,draftYear:2015,draftTeam:"Toronto Raptors",draftPick:46},
   {name:"Chris Paul",team:"LA Clippers",pos:"PG",nbaId:"101108",college:"Wake Forest",conference:"ACC",region:"Southeast",colors:["#000000", "#CEB888"],draftRound:1,draftYear:2005,draftTeam:"New Orleans Hornets",draftPick:4},
   {name:"Ivica Zubac",team:"LA Clippers",pos:"C",nbaId:"1627826",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:2,draftYear:2016,draftTeam:"Los Angeles Lakers",draftPick:32},
-  {name:"Jordan Miller",team:"LA Clippers",pos:"SF",nbaId:"1641762",college:"Miami",conference:"ACC",region:"Southeast",colors:["#F47321", "#005030"],draftRound:2,draftYear:2023,draftTeam:"Los Angeles Clippers",draftPick:36},
+  {name:"Jordan Miller",team:"LA Clippers",pos:"SF",nbaId:"1642392",college:"Miami",conference:"ACC",region:"Southeast",colors:["#F47321", "#005030"],draftRound:2,draftYear:2023,draftTeam:"Los Angeles Clippers",draftPick:36},
   {name:"Deandre Ayton",team:"LA Lakers",pos:"C",nbaId:"1629028",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2018,draftTeam:"Phoenix Suns",draftPick:1},
-  {name:"Rui Hachimura",team:"LA Lakers",pos:"PF",nbaId:"1629632",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2019,draftTeam:"Washington Wizards",draftPick:9},
+  {name:"Rui Hachimura",team:"LA Lakers",pos:"PF",nbaId:"1629060",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2019,draftTeam:"Washington Wizards",draftPick:9},
   {name:"Jaxson Hayes",team:"LA Lakers",pos:"C",nbaId:"1629637",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"New Orleans Pelicans",draftPick:8},
-  {name:"Bronny James",team:"LA Lakers",pos:"SG",nbaId:"1641764",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:2,draftYear:2024,draftTeam:"Los Angeles Lakers",draftPick:55},
+  {name:"Bronny James",team:"LA Lakers",pos:"SG",nbaId:"1642355",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:2,draftYear:2024,draftTeam:"Los Angeles Lakers",draftPick:55},
   {name:"LeBron James",team:"LA Lakers",pos:"SF",nbaId:"2544",college:"None (HS)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2003,draftTeam:"Cleveland Cavaliers",draftPick:1},
-  {name:"Dalton Knecht",team:"LA Lakers",pos:"SG",nbaId:"1641729",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Los Angeles Lakers",draftPick:17},
+  {name:"Dalton Knecht",team:"LA Lakers",pos:"SG",nbaId:"1642261",college:"Tennessee",conference:"SEC",region:"Southeast",colors:["#FF8200", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Los Angeles Lakers",draftPick:17},
   {name:"Brook Lopez",team:"Los Angeles Clippers",pos:"C",nbaId:"201572",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:1,draftYear:2008,draftTeam:"New Jersey Nets",draftPick:10},
   {name:"Austin Reaves",team:"LA Lakers",pos:"SG",nbaId:"1630559",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
   {name:"Marcus Smart",team:"LA Lakers",pos:"PG",nbaId:"203935",college:"Oklahoma State",conference:"Big 12",region:"South",colors:["#FF6600", "#000000"],draftRound:1,draftYear:2014,draftTeam:"Boston Celtics",draftPick:6},
-  {name:"Adou Thiero",team:"LA Lakers",pos:"SF",nbaId:"1641765",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Los Angeles Lakers",draftPick:22},
+  {name:"Adou Thiero",team:"LA Lakers",pos:"SF",nbaId:"1642876",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Los Angeles Lakers",draftPick:22},
   {name:"Jarred Vanderbilt",team:"LA Lakers",pos:"PF",nbaId:"1629020",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:2,draftYear:2018,draftTeam:"Denver Nuggets",draftPick:41},
   {name:"Gabe Vincent",team:"Atlanta Hawks",pos:"PG",nbaId:"1629216",college:"UC Santa Barbara",conference:"Big West",region:"West",colors:["#003660", "#FFD200"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
-  {name:"Christian Koloko",team:"Atlanta Hawks",pos:"C",nbaId:"1631239",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2022,draftTeam:"Toronto Raptors",draftPick:33},
-  {name:"Nick Smith Jr.",team:"LA Lakers",pos:"SG",nbaId:"1641766",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Charlotte Hornets",draftPick:27},
+  {name:"Christian Koloko",team:"Atlanta Hawks",pos:"C",nbaId:"1631132",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2022,draftTeam:"Toronto Raptors",draftPick:33},
+  {name:"Nick Smith Jr.",team:"LA Lakers",pos:"SG",nbaId:"1641733",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Charlotte Hornets",draftPick:27},
   {name:"Santi Aldama",team:"Memphis Grizzlies",pos:"PF",nbaId:"1630583",college:"Loyola Maryland",conference:"Patriot League",region:"Northeast",colors:["#006940", "#000000"],draftRound:1,draftYear:2021,draftTeam:"Memphis Grizzlies",draftPick:30},
   {name:"Kentavious Caldwell-Pope",team:"Memphis Grizzlies",pos:"SG",nbaId:"203484",college:"Georgia",conference:"SEC",region:"Southeast",colors:["#BA0C2F", "#000000"],draftRound:1,draftYear:2013,draftTeam:"Detroit Pistons",draftPick:8},
   {name:"Brandon Clarke",team:"Memphis Grizzlies",pos:"PF",nbaId:"1629634",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2019,draftTeam:"Memphis Grizzlies",draftPick:21},
-  {name:"Zach Edey",team:"Memphis Grizzlies",pos:"C",nbaId:"1641718",college:"Purdue",conference:"Big Ten",region:"Midwest",colors:["#CEB888", "#000000"],draftRound:1,draftYear:2024,draftTeam:"Memphis Grizzlies",draftPick:9},
-  {name:"GG Jackson II",team:"Memphis Grizzlies",pos:"PF",nbaId:"1641704",college:"South Carolina",conference:"SEC",region:"Southeast",colors:["#73000A", "#000000"],draftRound:2,draftYear:2023,draftTeam:"Memphis Grizzlies",draftPick:45},
+  {name:"Zach Edey",team:"Memphis Grizzlies",pos:"C",nbaId:"1641744",college:"Purdue",conference:"Big Ten",region:"Midwest",colors:["#CEB888", "#000000"],draftRound:1,draftYear:2024,draftTeam:"Memphis Grizzlies",draftPick:9},
+  {name:"GG Jackson II",team:"Memphis Grizzlies",pos:"PF",nbaId:"1641713",college:"South Carolina",conference:"SEC",region:"Southeast",colors:["#73000A", "#000000"],draftRound:2,draftYear:2023,draftTeam:"Memphis Grizzlies",draftPick:45},
   {name:"Jaren Jackson Jr.",team:"Utah Jazz",pos:"C",nbaId:"1628991",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Memphis Grizzlies",draftPick:4},
   {name:"Ty Jerome",team:"Memphis Grizzlies",pos:"PG",nbaId:"1629660",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:1,draftYear:2019,draftTeam:"Phoenix Suns",draftPick:24},
-  {name:"Jake LaRavia",team:"Los Angeles Lakers",pos:"SF",nbaId:"1631132",college:"Wake Forest",conference:"ACC",region:"Southeast",colors:["#9E7E38", "#000000"],draftRound:1,draftYear:2022,draftTeam:"Memphis Grizzlies",draftPick:19},
+  {name:"Jake LaRavia",team:"Los Angeles Lakers",pos:"SF",nbaId:"1631222",college:"Wake Forest",conference:"ACC",region:"Southeast",colors:["#9E7E38", "#000000"],draftRound:1,draftYear:2022,draftTeam:"Memphis Grizzlies",draftPick:19},
   {name:"Ja Morant",team:"Memphis Grizzlies",pos:"PG",nbaId:"1629630",college:"Murray State",conference:"Ohio Valley",region:"Southeast",colors:["#002654", "#FFCD00"],draftRound:1,draftYear:2019,draftTeam:"Memphis Grizzlies",draftPick:2},
-  {name:"Scotty Pippen Jr.",team:"Memphis Grizzlies",pos:"PG",nbaId:"1631189",college:"Vanderbilt",conference:"SEC",region:"Southeast",colors:["#866D4B", "#000000"],draftRound:2,draftYear:2022,draftTeam:"Memphis Grizzlies",draftPick:45},
-  {name:"Cam Spencer",team:"Memphis Grizzlies",pos:"SG",nbaId:"1631262",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
-  {name:"Jaylen Wells",team:"Memphis Grizzlies",pos:"SF",nbaId:"1641767",college:"Washington State",conference:"Pac-12",region:"West",colors:["#981E32", "#5E6A71"],draftRound:1,draftYear:2024,draftTeam:"Memphis Grizzlies",draftPick:39},
-  {name:"Vince Williams Jr.",team:"Utah Jazz",pos:"SF",nbaId:"1631273",college:"VCU",conference:"Atlantic 10",region:"Southeast",colors:["#000000", "#FFB300"],draftRound:2,draftYear:2022,draftTeam:"Memphis Grizzlies",draftPick:47},
-  {name:"PJ Hall",team:"Charlotte Hornets",pos:"PF",nbaId:"1641768",college:"Clemson",conference:"ACC",region:"Southeast",colors:["#F66733", "#522D80"],draftRound:2,draftYear:2024,draftTeam:"Memphis Grizzlies",draftPick:57},
-  {name:"Olivier-Maxence Prosper",team:"Memphis Grizzlies",pos:"SF",nbaId:"1641769",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:1,draftYear:2023,draftTeam:"Dallas Mavericks",draftPick:24},
+  {name:"Scotty Pippen Jr.",team:"Memphis Grizzlies",pos:"PG",nbaId:"1630590",college:"Vanderbilt",conference:"SEC",region:"Southeast",colors:["#866D4B", "#000000"],draftRound:2,draftYear:2022,draftTeam:"Memphis Grizzlies",draftPick:45},
+  {name:"Cam Spencer",team:"Memphis Grizzlies",pos:"SG",nbaId:"1642285",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
+  {name:"Jaylen Wells",team:"Memphis Grizzlies",pos:"SF",nbaId:"1642377",college:"Washington State",conference:"Pac-12",region:"West",colors:["#981E32", "#5E6A71"],draftRound:1,draftYear:2024,draftTeam:"Memphis Grizzlies",draftPick:39},
+  {name:"Vince Williams Jr.",team:"Utah Jazz",pos:"SF",nbaId:"1631246",college:"VCU",conference:"Atlantic 10",region:"Southeast",colors:["#000000", "#FFB300"],draftRound:2,draftYear:2022,draftTeam:"Memphis Grizzlies",draftPick:47},
+  {name:"PJ Hall",team:"Charlotte Hornets",pos:"PF",nbaId:"1641790",college:"Clemson",conference:"ACC",region:"Southeast",colors:["#F66733", "#522D80"],draftRound:2,draftYear:2024,draftTeam:"Memphis Grizzlies",draftPick:57},
+  {name:"Olivier-Maxence Prosper",team:"Memphis Grizzlies",pos:"SF",nbaId:"1641765",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:1,draftYear:2023,draftTeam:"Dallas Mavericks",draftPick:24},
   {name:"Bam Adebayo",team:"Miami Heat",pos:"C",nbaId:"1628389",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Miami Heat",draftPick:14},
   {name:"Tyler Herro",team:"Miami Heat",pos:"SG",nbaId:"1629639",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"Miami Heat",draftPick:13},
-  {name:"Jaime Jaquez Jr.",team:"Miami Heat",pos:"SF",nbaId:"1641703",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2023,draftTeam:"Miami Heat",draftPick:18},
-  {name:"Keshad Johnson",team:"Miami Heat",pos:"SF",nbaId:"1641770",college:"San Diego State",conference:"Mountain West",region:"West",colors:["#CC0000", "#000000"],draftRound:2,draftYear:2024,draftTeam:"Philadelphia 76ers",draftPick:42},
-  {name:"Davion Mitchell",team:"Miami Heat",pos:"PG",nbaId:"1630537",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2021,draftTeam:"Sacramento Kings",draftPick:9},
-  {name:"Kel'el Ware",team:"Miami Heat",pos:"C",nbaId:"1641742",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Miami Heat",draftPick:15},
+  {name:"Jaime Jaquez Jr.",team:"Miami Heat",pos:"SF",nbaId:"1631170",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2023,draftTeam:"Miami Heat",draftPick:18},
+  {name:"Keshad Johnson",team:"Miami Heat",pos:"SF",nbaId:"1642394",college:"San Diego State",conference:"Mountain West",region:"West",colors:["#CC0000", "#000000"],draftRound:2,draftYear:2024,draftTeam:"Philadelphia 76ers",draftPick:42},
+  {name:"Davion Mitchell",team:"Miami Heat",pos:"PG",nbaId:"1630558",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2021,draftTeam:"Sacramento Kings",draftPick:9},
+  {name:"Kel'el Ware",team:"Miami Heat",pos:"C",nbaId:"1642276",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Miami Heat",draftPick:15},
   {name:"Andrew Wiggins",team:"Miami Heat",pos:"SF",nbaId:"203952",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2014,draftTeam:"Cleveland Cavaliers",draftPick:1},
   {name:"Giannis Antetokounmpo",team:"Milwaukee Bucks",pos:"PF",nbaId:"203507",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2013,draftTeam:"Milwaukee Bucks",draftPick:15},
   {name:"Cole Anthony",team:"Phoenix Suns",pos:"PG",nbaId:"1630175",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:1,draftYear:2020,draftTeam:"Orlando Magic",draftPick:15},
-  {name:"AJ Green",team:"Milwaukee Bucks",pos:"SG",nbaId:"1630598",college:"North Texas",conference:"American",region:"South",colors:["#00853E", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"AJ Green",team:"Milwaukee Bucks",pos:"SG",nbaId:"1631260",college:"North Texas",conference:"American",region:"South",colors:["#00853E", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
   {name:"Gary Harris",team:"Milwaukee Bucks",pos:"SG",nbaId:"203914",college:"Michigan State",conference:"Big Ten",region:"Midwest",colors:["#18453B", "#FFFFFF"],draftRound:1,draftYear:2014,draftTeam:"Chicago Bulls",draftPick:19},
-  {name:"Andre Jackson Jr.",team:"Milwaukee Bucks",pos:"SG",nbaId:"1641195",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Milwaukee Bucks",draftPick:23},
+  {name:"Andre Jackson Jr.",team:"Milwaukee Bucks",pos:"SG",nbaId:"1641748",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Milwaukee Bucks",draftPick:23},
   {name:"Kyle Kuzma",team:"Milwaukee Bucks",pos:"PF",nbaId:"1628398",college:"Utah",conference:"Pac-12",region:"West",colors:["#CC0000", "#000000"],draftRound:1,draftYear:2017,draftTeam:"Los Angeles Lakers",draftPick:27},
   {name:"Kevin Porter Jr.",team:"Milwaukee Bucks",pos:"SG",nbaId:"1629660",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2019,draftTeam:"Cleveland Cavaliers",draftPick:30},
   {name:"Bobby Portis",team:"Milwaukee Bucks",pos:"PF",nbaId:"1626171",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2015,draftTeam:"Chicago Bulls",draftPick:22},
-  {name:"Taurean Prince",team:"Milwaukee Bucks",pos:"SF",nbaId:"1627780",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2016,draftTeam:"Utah Jazz",draftPick:12},
-  {name:"Ryan Rollins",team:"Milwaukee Bucks",pos:"SG",nbaId:"1631218",college:"Toledo",conference:"MAC",region:"Midwest",colors:["#003E7E", "#FDBB30"],draftRound:1,draftYear:2022,draftTeam:"Golden State Warriors",draftPick:44},
-  {name:"Jericho Sims",team:"Milwaukee Bucks",pos:"C",nbaId:"1630561",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"New York Knicks",draftPick:58},
+  {name:"Taurean Prince",team:"Milwaukee Bucks",pos:"SF",nbaId:"1627752",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2016,draftTeam:"Utah Jazz",draftPick:12},
+  {name:"Ryan Rollins",team:"Milwaukee Bucks",pos:"SG",nbaId:"1631157",college:"Toledo",conference:"MAC",region:"Midwest",colors:["#003E7E", "#FDBB30"],draftRound:1,draftYear:2022,draftTeam:"Golden State Warriors",draftPick:44},
+  {name:"Jericho Sims",team:"Milwaukee Bucks",pos:"C",nbaId:"1630579",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"New York Knicks",draftPick:58},
   {name:"Gary Trent Jr.",team:"Milwaukee Bucks",pos:"SG",nbaId:"1629018",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:2,draftYear:2018,draftTeam:"Portland Trail Blazers",draftPick:37},
   {name:"Pete Nance",team:"Milwaukee Bucks",pos:"PF",nbaId:"1631264",college:"Northwestern",conference:"Big Ten",region:"Midwest",colors:["#4E2A84", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Boston Celtics",draftPick:49},
-  {name:"Mark Sears",team:"Milwaukee Bucks",pos:"PG",nbaId:"1641773",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:0,draftYear:2024,draftTeam:"Undrafted",draftPick:0},
+  {name:"Mark Sears",team:"Milwaukee Bucks",pos:"PG",nbaId:"1642398",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:0,draftYear:2024,draftTeam:"Undrafted",draftPick:0},
   {name:"Mike Conley",team:"Minnesota Timberwolves",pos:"PG",nbaId:"201144",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:1,draftYear:2007,draftTeam:"Memphis Grizzlies",draftPick:4},
-  {name:"Rob Dillingham",team:"Chicago Bulls",pos:"PG",nbaId:"1641734",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"San Antonio Spurs",draftPick:8},
-  {name:"Donte DiVincenzo",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1628984",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Milwaukee Bucks",draftPick:17},
+  {name:"Rob Dillingham",team:"Chicago Bulls",pos:"PG",nbaId:"1630544",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"San Antonio Spurs",draftPick:8},
+  {name:"Donte DiVincenzo",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1628978",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Milwaukee Bucks",draftPick:17},
   {name:"Anthony Edwards",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1630162",college:"Georgia",conference:"SEC",region:"Southeast",colors:["#BA0C2F", "#000000"],draftRound:1,draftYear:2020,draftTeam:"Minnesota Timberwolves",draftPick:1},
   {name:"Rudy Gobert",team:"Minnesota Timberwolves",pos:"C",nbaId:"203497",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2013,draftTeam:"Utah Jazz",draftPick:27},
   {name:"Bones Hyland",team:"Minnesota Timberwolves",pos:"PG",nbaId:"1630538",college:"VCU",conference:"Atlantic 10",region:"Southeast",colors:["#000000", "#FFB300"],draftRound:1,draftYear:2021,draftTeam:"Denver Nuggets",draftPick:26},
   {name:"Jaden McDaniels",team:"Minnesota Timberwolves",pos:"SF",nbaId:"1630183",college:"Washington",conference:"Pac-12",region:"West",colors:["#4B2E83", "#E8D3A2"],draftRound:1,draftYear:2020,draftTeam:"Minnesota Timberwolves",draftPick:28},
   {name:"Julius Randle",team:"Minnesota Timberwolves",pos:"PF",nbaId:"203944",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2014,draftTeam:"Los Angeles Lakers",draftPick:7},
   {name:"Naz Reid",team:"Minnesota Timberwolves",pos:"C",nbaId:"1629675",college:"LSU",conference:"SEC",region:"Southeast",colors:["#461D7C", "#FDD023"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
-  {name:"Terrence Shannon Jr.",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1630581",college:"Illinois",conference:"Big Ten",region:"Midwest",colors:["#E84A27", "#13294B"],draftRound:2,draftYear:2024,draftTeam:"Minnesota Timberwolves",draftPick:38},
+  {name:"Terrence Shannon Jr.",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1630545",college:"Illinois",conference:"Big Ten",region:"Midwest",colors:["#E84A27", "#13294B"],draftRound:2,draftYear:2024,draftTeam:"Minnesota Timberwolves",draftPick:38},
   {name:"Karl-Anthony Towns",team:"New York Knicks",pos:"C",nbaId:"1626157",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2015,draftTeam:"Minnesota Timberwolves",draftPick:1},
-  {name:"Enrique Freeman",team:"Minnesota Timberwolves",pos:"PF",nbaId:"1641776",college:"Akron",conference:"MAC",region:"Midwest",colors:["#00285E", "#A89968"],draftRound:0,draftYear:2024,draftTeam:"Undrafted",draftPick:0},
-  {name:"Johnny Juzang",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1630529",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:2,draftYear:2021,draftTeam:"Philadelphia 76ers",draftPick:46},
+  {name:"Enrique Freeman",team:"Minnesota Timberwolves",pos:"PF",nbaId:"1642399",college:"Akron",conference:"MAC",region:"Midwest",colors:["#00285E", "#A89968"],draftRound:0,draftYear:2024,draftTeam:"Undrafted",draftPick:0},
+  {name:"Johnny Juzang",team:"Minnesota Timberwolves",pos:"SG",nbaId:"1630548",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:2,draftYear:2021,draftTeam:"Philadelphia 76ers",draftPick:46},
   {name:"Jose Alvarado",team:"New York Knicks",pos:"PG",nbaId:"1630631",college:"Georgia Tech",conference:"ACC",region:"Southeast",colors:["#B3A369", "#003057"],draftRound:0,draftYear:2021,draftTeam:"Undrafted",draftPick:0},
-  {name:"Saddiq Bey",team:"New Orleans Pelicans",pos:"SF",nbaId:"1630556",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2020,draftTeam:"Detroit Pistons",draftPick:19},
-  {name:"Jordan Hawkins",team:"New Orleans Pelicans",pos:"SG",nbaId:"1641712",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"New Orleans Pelicans",draftPick:14},
-  {name:"Herbert Jones",team:"New Orleans Pelicans",pos:"SF",nbaId:"1630585",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"New Orleans Pelicans",draftPick:35},
+  {name:"Saddiq Bey",team:"New Orleans Pelicans",pos:"SF",nbaId:"1630180",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2020,draftTeam:"Detroit Pistons",draftPick:19},
+  {name:"Jordan Hawkins",team:"New Orleans Pelicans",pos:"SG",nbaId:"1641722",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"New Orleans Pelicans",draftPick:14},
+  {name:"Herbert Jones",team:"New Orleans Pelicans",pos:"SF",nbaId:"1630529",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"New Orleans Pelicans",draftPick:35},
   {name:"Kevon Looney",team:"New Orleans Pelicans",pos:"C",nbaId:"1626172",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2015,draftTeam:"Golden State Warriors",draftPick:30},
-  {name:"Yves Missi",team:"New Orleans Pelicans",pos:"C",nbaId:"1641740",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2024,draftTeam:"New Orleans Pelicans",draftPick:21},
+  {name:"Yves Missi",team:"New Orleans Pelicans",pos:"C",nbaId:"1642274",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2024,draftTeam:"New Orleans Pelicans",draftPick:21},
   {name:"Trey Murphy III",team:"New Orleans Pelicans",pos:"SF",nbaId:"1630530",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:1,draftYear:2021,draftTeam:"New Orleans Pelicans",draftPick:17},
-  {name:"Micah Peavy",team:"New Orleans Pelicans",pos:"SF",nbaId:"1641741",college:"TCU",conference:"Big 12",region:"South",colors:["#4D1979", "#A3A9AC"],draftRound:2,draftYear:2024,draftTeam:"New Orleans Pelicans",draftPick:59},
+  {name:"Micah Peavy",team:"New Orleans Pelicans",pos:"SF",nbaId:"1642395",college:"TCU",conference:"Big 12",region:"South",colors:["#4D1979", "#A3A9AC"],draftRound:2,draftYear:2024,draftTeam:"New Orleans Pelicans",draftPick:59},
   {name:"Jordan Poole",team:"New Orleans Pelicans",pos:"SG",nbaId:"1629673",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2019,draftTeam:"Golden State Warriors",draftPick:28},
   {name:"Zion Williamson",team:"New Orleans Pelicans",pos:"PF",nbaId:"1629627",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"New Orleans Pelicans",draftPick:1},
-  {name:"Trey Alexander",team:"New Orleans Pelicans",pos:"SG",nbaId:"1641778",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"New Orleans Pelicans",draftPick:58},
-  {name:"Bryce McGowens",team:"New Orleans Pelicans",pos:"SG",nbaId:"1631141",college:"Nebraska",conference:"Big Ten",region:"Midwest",colors:["#E41C38", "#FEDC00"],draftRound:2,draftYear:2022,draftTeam:"Charlotte Hornets",draftPick:40},
-  {name:"OG Anunoby",team:"New York Knicks",pos:"SF",nbaId:"1628996",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Toronto Raptors",draftPick:23},
+  {name:"Trey Alexander",team:"New Orleans Pelicans",pos:"SG",nbaId:"1641725",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:2,draftYear:2023,draftTeam:"New Orleans Pelicans",draftPick:58},
+  {name:"Bryce McGowens",team:"New Orleans Pelicans",pos:"SG",nbaId:"1631121",college:"Nebraska",conference:"Big Ten",region:"Midwest",colors:["#E41C38", "#FEDC00"],draftRound:2,draftYear:2022,draftTeam:"Charlotte Hornets",draftPick:40},
+  {name:"OG Anunoby",team:"New York Knicks",pos:"SF",nbaId:"1628384",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Toronto Raptors",draftPick:23},
   {name:"Mikal Bridges",team:"New York Knicks",pos:"SF",nbaId:"1628969",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Philadelphia 76ers",draftPick:10},
-  {name:"Jalen Brunson",team:"New York Knicks",pos:"PG",nbaId:"1628384",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:2,draftYear:2018,draftTeam:"Dallas Mavericks",draftPick:33},
+  {name:"Jalen Brunson",team:"New York Knicks",pos:"PG",nbaId:"1628973",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:2,draftYear:2018,draftTeam:"Dallas Mavericks",draftPick:33},
   {name:"Jordan Clarkson",team:"New York Knicks",pos:"SG",nbaId:"203903",college:"Missouri",conference:"SEC",region:"Midwest",colors:["#5C2D91", "#F2A900"],draftRound:2,draftYear:2014,draftTeam:"Washington Wizards",draftPick:46},
   {name:"Josh Hart",team:"New York Knicks",pos:"SG",nbaId:"1628404",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Los Angeles Lakers",draftPick:30},
-  {name:"Tyler Kolek",team:"New York Knicks",pos:"PG",nbaId:"1641781",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:2,draftYear:2024,draftTeam:"New York Knicks",draftPick:34},
+  {name:"Tyler Kolek",team:"New York Knicks",pos:"PG",nbaId:"1642278",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:2,draftYear:2024,draftTeam:"New York Knicks",draftPick:34},
   {name:"Miles McBride",team:"New York Knicks",pos:"PG",nbaId:"1630540",college:"West Virginia",conference:"Big 12",region:"Southeast",colors:["#002855", "#EAAA00"],draftRound:2,draftYear:2021,draftTeam:"New York Knicks",draftPick:36},
   {name:"Landry Shamet",team:"New York Knicks",pos:"SG",nbaId:"1629013",college:"Wichita State",conference:"American",region:"South",colors:["#000000", "#FFCD00"],draftRound:1,draftYear:2018,draftTeam:"Philadelphia 76ers",draftPick:26},
-  {name:"Tosan Evbuomwan",team:"Charlotte Hornets",pos:"SF",nbaId:"1641782",college:"Princeton",conference:"Ivy",region:"Northeast",colors:["#FF6600", "#000000"],draftRound:2,draftYear:2023,draftTeam:"New York Knicks",draftPick:55},
-  {name:"Kevin McCullar Jr.",team:"New York Knicks",pos:"SG",nbaId:"1641783",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:2,draftYear:2024,draftTeam:"New York Knicks",draftPick:44},
-  {name:"Alex Caruso",team:"OKC Thunder",pos:"SG",nbaId:"1028384",college:"Texas A&M",conference:"SEC",region:"South",colors:["#500000", "#FFFFFF"],draftRound:0,draftYear:2016,draftTeam:"Undrafted",draftPick:0},
+  {name:"Tosan Evbuomwan",team:"Charlotte Hornets",pos:"SF",nbaId:"1641787",college:"Princeton",conference:"Ivy",region:"Northeast",colors:["#FF6600", "#000000"],draftRound:2,draftYear:2023,draftTeam:"New York Knicks",draftPick:55},
+  {name:"Kevin McCullar Jr.",team:"New York Knicks",pos:"SG",nbaId:"1641755",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:2,draftYear:2024,draftTeam:"New York Knicks",draftPick:44},
+  {name:"Alex Caruso",team:"OKC Thunder",pos:"SG",nbaId:"1627936",college:"Texas A&M",conference:"SEC",region:"South",colors:["#500000", "#FFFFFF"],draftRound:0,draftYear:2016,draftTeam:"Undrafted",draftPick:0},
   {name:"Luguentz Dort",team:"OKC Thunder",pos:"SG",nbaId:"1629652",college:"Arizona State",conference:"Pac-12",region:"West",colors:["#8C1D40", "#FFC627"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
   {name:"Shai Gilgeous-Alexander",team:"OKC Thunder",pos:"PG",nbaId:"1628983",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Los Angeles Clippers",draftPick:11},
   {name:"Chet Holmgren",team:"OKC Thunder",pos:"C",nbaId:"1631096",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2022,draftTeam:"Oklahoma City Thunder",draftPick:2},
-  {name:"Isaiah Joe",team:"OKC Thunder",pos:"SG",nbaId:"1630183",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Philadelphia 76ers",draftPick:49},
-  {name:"Cason Wallace",team:"OKC Thunder",pos:"SG",nbaId:"1641709",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Oklahoma City Thunder",draftPick:10},
-  {name:"Aaron Wiggins",team:"OKC Thunder",pos:"SF",nbaId:"1630571",college:"Maryland",conference:"Big Ten",region:"Northeast",colors:["#E03A3E", "#FFD520"],draftRound:2,draftYear:2021,draftTeam:"Oklahoma City Thunder",draftPick:55},
-  {name:"Jaylin Williams",team:"OKC Thunder",pos:"PF",nbaId:"1631233",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Oklahoma City Thunder",draftPick:57},
+  {name:"Isaiah Joe",team:"OKC Thunder",pos:"SG",nbaId:"1630204",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Philadelphia 76ers",draftPick:49},
+  {name:"Cason Wallace",team:"OKC Thunder",pos:"SG",nbaId:"1641717",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Oklahoma City Thunder",draftPick:10},
+  {name:"Aaron Wiggins",team:"OKC Thunder",pos:"SF",nbaId:"1630598",college:"Maryland",conference:"Big Ten",region:"Northeast",colors:["#E03A3E", "#FFD520"],draftRound:2,draftYear:2021,draftTeam:"Oklahoma City Thunder",draftPick:55},
+  {name:"Jaylin Williams",team:"OKC Thunder",pos:"PF",nbaId:"1631119",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Oklahoma City Thunder",draftPick:57},
   {name:"Desmond Bane",team:"Orlando Magic",pos:"SG",nbaId:"1630217",college:"TCU",conference:"Big 12",region:"South",colors:["#4D1979", "#A3A9AC"],draftRound:1,draftYear:2020,draftTeam:"Memphis Grizzlies",draftPick:30},
-  {name:"Thomas Sorber",team:"OKC Thunder",pos:"C",nbaId:"1642200",college:"Georgetown",conference:"Big East",region:"Northeast",colors:["#041E42", "#8D817B"],draftRound:1,draftYear:2025,draftTeam:"Oklahoma City Thunder",draftPick:12},
-  {name:"Brooks Barnhizer",team:"OKC Thunder",pos:"SG",nbaId:"1641785",college:"Northwestern",conference:"Big Ten",region:"Midwest",colors:["#4E2A84", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Oklahoma City Thunder",draftPick:37},
-  {name:"Branden Carlson",team:"OKC Thunder",pos:"C",nbaId:"1631265",college:"Utah",conference:"Pac-12",region:"West",colors:["#CC0000", "#000000"],draftRound:2,draftYear:2022,draftTeam:"Utah Jazz",draftPick:50},
+  {name:"Thomas Sorber",team:"OKC Thunder",pos:"C",nbaId:"1642870",college:"Georgetown",conference:"Big East",region:"Northeast",colors:["#041E42", "#8D817B"],draftRound:1,draftYear:2025,draftTeam:"Oklahoma City Thunder",draftPick:12},
+  {name:"Brooks Barnhizer",team:"OKC Thunder",pos:"SG",nbaId:"1642964",college:"Northwestern",conference:"Big Ten",region:"Midwest",colors:["#4E2A84", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Oklahoma City Thunder",draftPick:37},
+  {name:"Branden Carlson",team:"OKC Thunder",pos:"C",nbaId:"1631233",college:"Utah",conference:"Pac-12",region:"West",colors:["#CC0000", "#000000"],draftRound:2,draftYear:2022,draftTeam:"Utah Jazz",draftPick:50},
   {name:"Paolo Banchero",team:"Orlando Magic",pos:"PF",nbaId:"1631094",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2022,draftTeam:"Orlando Magic",draftPick:1},
   {name:"Goga Bitadze",team:"Orlando Magic",pos:"C",nbaId:"1629048",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2019,draftTeam:"Indiana Pacers",draftPick:18},
-  {name:"Anthony Black",team:"Orlando Magic",pos:"PG",nbaId:"1641707",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Orlando Magic",draftPick:6},
+  {name:"Anthony Black",team:"Orlando Magic",pos:"PG",nbaId:"1641710",college:"Arkansas",conference:"SEC",region:"South",colors:["#9D2235", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Orlando Magic",draftPick:6},
   {name:"Wendell Carter Jr.",team:"Orlando Magic",pos:"C",nbaId:"1628976",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Chicago Bulls",draftPick:7},
-  {name:"Tristan da Silva",team:"Orlando Magic",pos:"SF",nbaId:"1641732",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:1,draftYear:2024,draftTeam:"Orlando Magic",draftPick:18},
-  {name:"Jett Howard",team:"Orlando Magic",pos:"SG",nbaId:"1641711",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2023,draftTeam:"Orlando Magic",draftPick:11},
+  {name:"Tristan da Silva",team:"Orlando Magic",pos:"SF",nbaId:"1641783",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:1,draftYear:2024,draftTeam:"Orlando Magic",draftPick:18},
+  {name:"Jett Howard",team:"Orlando Magic",pos:"SG",nbaId:"1641724",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2023,draftTeam:"Orlando Magic",draftPick:11},
   {name:"Jonathan Isaac",team:"Orlando Magic",pos:"PF",nbaId:"1628371",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:1,draftYear:2017,draftTeam:"Orlando Magic",draftPick:6},
   {name:"Tyus Jones",team:"Denver Nuggets",pos:"PG",nbaId:"1626145",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2015,draftTeam:"Minnesota Timberwolves",draftPick:24},
   {name:"Franz Wagner",team:"Orlando Magic",pos:"SF",nbaId:"1630532",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2021,draftTeam:"Orlando Magic",draftPick:8},
   {name:"Moritz Wagner",team:"Orlando Magic",pos:"C",nbaId:"1629021",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:1,draftYear:2018,draftTeam:"Los Angeles Lakers",draftPick:25},
   {name:"Kelly Oubre Jr.",team:"Philadelphia 76ers",pos:"SF",nbaId:"1626162",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2015,draftTeam:"Atlanta Hawks",draftPick:15},
-  {name:"Colin Castleton",team:"Orlando Magic",pos:"C",nbaId:"1630540",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
-  {name:"Adem Bona",team:"Philadelphia 76ers",pos:"C",nbaId:"1641788",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:2,draftYear:2023,draftTeam:"Oklahoma City Thunder",draftPick:59},
-  {name:"Johni Broome",team:"Philadelphia 76ers",pos:"C",nbaId:"1641789",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2025,draftTeam:"Philadelphia 76ers",draftPick:14},
+  {name:"Colin Castleton",team:"Orlando Magic",pos:"C",nbaId:"1630658",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"Adem Bona",team:"Philadelphia 76ers",pos:"C",nbaId:"1641737",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:2,draftYear:2023,draftTeam:"Oklahoma City Thunder",draftPick:59},
+  {name:"Johni Broome",team:"Philadelphia 76ers",pos:"C",nbaId:"1642858",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2025,draftTeam:"Philadelphia 76ers",draftPick:14},
   {name:"Andre Drummond",team:"Philadelphia 76ers",pos:"C",nbaId:"203083",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2012,draftTeam:"Detroit Pistons",draftPick:9},
-  {name:"Justin Edwards",team:"Philadelphia 76ers",pos:"SF",nbaId:"1641790",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Philadelphia 76ers",draftPick:15},
+  {name:"Justin Edwards",team:"Philadelphia 76ers",pos:"SF",nbaId:"1642253",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Philadelphia 76ers",draftPick:15},
   {name:"Joel Embiid",team:"Philadelphia 76ers",pos:"C",nbaId:"203954",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2014,draftTeam:"Philadelphia 76ers",draftPick:3},
   {name:"Paul George",team:"Philadelphia 76ers",pos:"SF",nbaId:"202331",college:"Fresno State",conference:"Mountain West",region:"West",colors:["#CC0000", "#003399"],draftRound:1,draftYear:2010,draftTeam:"Indiana Pacers",draftPick:10},
   {name:"Eric Gordon",team:"Philadelphia 76ers",pos:"SG",nbaId:"201569",college:"Indiana",conference:"Big Ten",region:"Midwest",colors:["#990000", "#FFFFFF"],draftRound:1,draftYear:2008,draftTeam:"Los Angeles Clippers",draftPick:7},
-  {name:"Quentin Grimes",team:"Philadelphia 76ers",pos:"SG",nbaId:"1630208",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2021,draftTeam:"New York Knicks",draftPick:25},
+  {name:"Quentin Grimes",team:"Philadelphia 76ers",pos:"SG",nbaId:"1629656",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2021,draftTeam:"New York Knicks",draftPick:25},
   {name:"Kyle Lowry",team:"Philadelphia 76ers",pos:"PG",nbaId:"200768",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:1,draftYear:2006,draftTeam:"Memphis Grizzlies",draftPick:24},
   {name:"Tyrese Maxey",team:"Philadelphia 76ers",pos:"PG",nbaId:"1630178",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2020,draftTeam:"Philadelphia 76ers",draftPick:21},
-  {name:"Jared McCain",team:"Philadelphia 76ers",pos:"SG",nbaId:"1641730",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Philadelphia 76ers",draftPick:16},
-  {name:"Mark Williams",team:"Phoenix Suns",pos:"C",nbaId:"1631139",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2022,draftTeam:"Charlotte Hornets",draftPick:15},
+  {name:"Jared McCain",team:"Philadelphia 76ers",pos:"SG",nbaId:"1642272",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Philadelphia 76ers",draftPick:16},
+  {name:"Mark Williams",team:"Phoenix Suns",pos:"C",nbaId:"1631109",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2022,draftTeam:"Charlotte Hornets",draftPick:15},
   {name:"Grayson Allen",team:"Phoenix Suns",pos:"SG",nbaId:"1628960",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Utah Jazz",draftPick:21},
   {name:"Devin Booker",team:"Phoenix Suns",pos:"SG",nbaId:"1626164",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2015,draftTeam:"Phoenix Suns",draftPick:13},
   {name:"Dillon Brooks",team:"Phoenix Suns",pos:"SF",nbaId:"1628415",college:"Oregon",conference:"Pac-12",region:"West",colors:["#154733", "#FEE123"],draftRound:1,draftYear:2017,draftTeam:"Houston Rockets",draftPick:45},
-  {name:"Ryan Dunn",team:"Phoenix Suns",pos:"SF",nbaId:"1641733",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:1,draftYear:2024,draftTeam:"Phoenix Suns",draftPick:28},
-  {name:"Collin Gillespie",team:"Phoenix Suns",pos:"PG",nbaId:"1631268",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
-  {name:"Jordan Goodwin",team:"Phoenix Suns",pos:"SG",nbaId:"1629946",college:"Saint Louis",conference:"Atlantic 10",region:"Midwest",colors:["#003DA5", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
-  {name:"Oso Ighodaro",team:"Phoenix Suns",pos:"C",nbaId:"1641793",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:2,draftYear:2024,draftTeam:"Phoenix Suns",draftPick:55},
+  {name:"Ryan Dunn",team:"Phoenix Suns",pos:"SF",nbaId:"1642346",college:"Virginia",conference:"ACC",region:"Southeast",colors:["#232D4B", "#F84C1E"],draftRound:1,draftYear:2024,draftTeam:"Phoenix Suns",draftPick:28},
+  {name:"Collin Gillespie",team:"Phoenix Suns",pos:"PG",nbaId:"1631221",college:"Villanova",conference:"Big East",region:"Northeast",colors:["#002F6C", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"Jordan Goodwin",team:"Phoenix Suns",pos:"SG",nbaId:"1630692",college:"Saint Louis",conference:"Atlantic 10",region:"Midwest",colors:["#003DA5", "#FFFFFF"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
+  {name:"Oso Ighodaro",team:"Phoenix Suns",pos:"C",nbaId:"1642345",college:"Marquette",conference:"Big East",region:"Midwest",colors:["#003366", "#FFCC00"],draftRound:2,draftYear:2024,draftTeam:"Phoenix Suns",draftPick:55},
   {name:"Royce O'Neale",team:"Phoenix Suns",pos:"SF",nbaId:"1626220",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:0,draftYear:2015,draftTeam:"Undrafted",draftPick:0},
-  {name:"Nick Richards",team:"Chicago Bulls",pos:"C",nbaId:"1630201",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Charlotte Hornets",draftPick:42},
+  {name:"Nick Richards",team:"Chicago Bulls",pos:"C",nbaId:"1630208",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:2,draftYear:2020,draftTeam:"Charlotte Hornets",draftPick:42},
   {name:"Devin Vassell",team:"San Antonio Spurs",pos:"SG",nbaId:"1630170",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:1,draftYear:2020,draftTeam:"San Antonio Spurs",draftPick:11},
-  {name:"Koby Brea",team:"Phoenix Suns",pos:"SG",nbaId:"1641794",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:2,draftYear:2024,draftTeam:"Phoenix Suns",draftPick:49},
-  {name:"Isaiah Livers",team:"Phoenix Suns",pos:"SF",nbaId:"1630530",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2021,draftTeam:"Detroit Pistons",draftPick:42},
+  {name:"Koby Brea",team:"Phoenix Suns",pos:"SG",nbaId:"1642886",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:2,draftYear:2024,draftTeam:"Phoenix Suns",draftPick:49},
+  {name:"Isaiah Livers",team:"Phoenix Suns",pos:"SF",nbaId:"1630587",college:"Michigan",conference:"Big Ten",region:"Midwest",colors:["#00274C", "#FFCB05"],draftRound:2,draftYear:2021,draftTeam:"Detroit Pistons",draftPick:42},
   {name:"Deni Avdija",team:"Portland Trail Blazers",pos:"SF",nbaId:"1630166",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2020,draftTeam:"Washington Wizards",draftPick:9},
-  {name:"Toumani Camara",team:"Portland Trail Blazers",pos:"SF",nbaId:"1641197",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:2,draftYear:2023,draftTeam:"Portland Trail Blazers",draftPick:47},
-  {name:"Donovan Clingan",team:"Portland Trail Blazers",pos:"C",nbaId:"1641731",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Portland Trail Blazers",draftPick:7},
+  {name:"Toumani Camara",team:"Portland Trail Blazers",pos:"SF",nbaId:"1641739",college:"Dayton",conference:"Atlantic 10",region:"Midwest",colors:["#004B8D", "#E31837"],draftRound:2,draftYear:2023,draftTeam:"Portland Trail Blazers",draftPick:47},
+  {name:"Donovan Clingan",team:"Portland Trail Blazers",pos:"C",nbaId:"1642270",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Portland Trail Blazers",draftPick:7},
   {name:"Jerami Grant",team:"Portland Trail Blazers",pos:"PF",nbaId:"203924",college:"Syracuse",conference:"ACC",region:"Northeast",colors:["#F76900", "#000000"],draftRound:2,draftYear:2014,draftTeam:"Philadelphia 76ers",draftPick:39},
   {name:"Scoot Henderson",team:"Portland Trail Blazers",pos:"PG",nbaId:"1641706",college:"None (G-League)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2023,draftTeam:"Portland Trail Blazers",draftPick:3},
   {name:"Jrue Holiday",team:"Portland Trail Blazers",pos:"PG",nbaId:"201950",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2009,draftTeam:"Philadelphia 76ers",draftPick:17},
   {name:"Damian Lillard",team:"Portland Trail Blazers",pos:"PG",nbaId:"203081",college:"Weber State",conference:"Big Sky",region:"West",colors:["#4B2E83", "#A2A9AD"],draftRound:1,draftYear:2012,draftTeam:"Portland Trail Blazers",draftPick:6},
-  {name:"Kris Murray",team:"Portland Trail Blazers",pos:"SF",nbaId:"1641196",college:"Iowa",conference:"Big Ten",region:"Midwest",colors:["#FFCD00", "#000000"],draftRound:1,draftYear:2023,draftTeam:"Portland Trail Blazers",draftPick:23},
-  {name:"Duop Reath",team:"Portland Trail Blazers",pos:"C",nbaId:"1629726",college:"LSU",conference:"SEC",region:"Southeast",colors:["#461D7C", "#FDD023"],draftRound:2,draftYear:2018,draftTeam:"Portland Trail Blazers",draftPick:58},
+  {name:"Kris Murray",team:"Portland Trail Blazers",pos:"SF",nbaId:"1631200",college:"Iowa",conference:"Big Ten",region:"Midwest",colors:["#FFCD00", "#000000"],draftRound:1,draftYear:2023,draftTeam:"Portland Trail Blazers",draftPick:23},
+  {name:"Duop Reath",team:"Portland Trail Blazers",pos:"C",nbaId:"1641871",college:"LSU",conference:"SEC",region:"Southeast",colors:["#461D7C", "#FDD023"],draftRound:2,draftYear:2018,draftTeam:"Portland Trail Blazers",draftPick:58},
   {name:"Shaedon Sharpe",team:"Portland Trail Blazers",pos:"SG",nbaId:"1631108",college:"None (HS)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2022,draftTeam:"Portland Trail Blazers",draftPick:7},
   {name:"Matisse Thybulle",team:"Portland Trail Blazers",pos:"SF",nbaId:"1629680",college:"Washington",conference:"Pac-12",region:"West",colors:["#4B2E83", "#E8D3A2"],draftRound:1,draftYear:2019,draftTeam:"Philadelphia 76ers",draftPick:20},
-  {name:"Blake Wesley",team:"Portland Trail Blazers",pos:"SG",nbaId:"1631210",college:"Notre Dame",conference:"ACC",region:"Midwest",colors:["#0C2340", "#AE9142"],draftRound:1,draftYear:2022,draftTeam:"San Antonio Spurs",draftPick:25},
+  {name:"Blake Wesley",team:"Portland Trail Blazers",pos:"SG",nbaId:"1631118",college:"Notre Dame",conference:"ACC",region:"Midwest",colors:["#0C2340", "#AE9142"],draftRound:1,draftYear:2022,draftTeam:"San Antonio Spurs",draftPick:25},
   {name:"Robert Williams III",team:"Portland Trail Blazers",pos:"C",nbaId:"1629057",college:"Texas A&M",conference:"SEC",region:"South",colors:["#500000", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Boston Celtics",draftPick:27},
-  {name:"Jabari Walker",team:"Philadelphia 76ers",pos:"PF",nbaId:"1631220",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:2,draftYear:2022,draftTeam:"Portland Trail Blazers",draftPick:57},
-  {name:"Devin Carter",team:"Sacramento Kings",pos:"SG",nbaId:"1641736",college:"Providence",conference:"Big East",region:"Northeast",colors:["#002147", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Sacramento Kings",draftPick:13},
+  {name:"Jabari Walker",team:"Philadelphia 76ers",pos:"PF",nbaId:"1631133",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:2,draftYear:2022,draftTeam:"Portland Trail Blazers",draftPick:57},
+  {name:"Devin Carter",team:"Sacramento Kings",pos:"SG",nbaId:"1642269",college:"Providence",conference:"Big East",region:"Northeast",colors:["#002147", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Sacramento Kings",draftPick:13},
   {name:"DeMar DeRozan",team:"Sacramento Kings",pos:"SG",nbaId:"201942",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2009,draftTeam:"Toronto Raptors",draftPick:9},
-  {name:"Keon Ellis",team:"Cleveland Cavaliers",pos:"SG",nbaId:"1631265",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Sacramento Kings",draftPick:48},
-  {name:"Drew Eubanks",team:"Sacramento Kings",pos:"C",nbaId:"1629036",college:"Oregon State",conference:"Pac-12",region:"West",colors:["#DC4405", "#000000"],draftRound:0,draftYear:2018,draftTeam:"Undrafted",draftPick:0},
+  {name:"Keon Ellis",team:"Cleveland Cavaliers",pos:"SG",nbaId:"1631165",college:"Alabama",conference:"SEC",region:"Southeast",colors:["#9E1B32", "#FFFFFF"],draftRound:2,draftYear:2022,draftTeam:"Sacramento Kings",draftPick:48},
+  {name:"Drew Eubanks",team:"Sacramento Kings",pos:"C",nbaId:"1629234",college:"Oregon State",conference:"Pac-12",region:"West",colors:["#DC4405", "#000000"],draftRound:0,draftYear:2018,draftTeam:"Undrafted",draftPick:0},
   {name:"Zach LaVine",team:"Sacramento Kings",pos:"SG",nbaId:"203897",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2014,draftTeam:"Minnesota Timberwolves",draftPick:13},
   {name:"Doug McDermott",team:"Sacramento Kings",pos:"SF",nbaId:"203926",college:"Creighton",conference:"Big East",region:"Midwest",colors:["#005CA9", "#FFFFFF"],draftRound:1,draftYear:2014,draftTeam:"Chicago Bulls",draftPick:11},
   {name:"Malik Monk",team:"Sacramento Kings",pos:"SG",nbaId:"1628370",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Charlotte Hornets",draftPick:11},
-  {name:"Maxime Raynaud",team:"Sacramento Kings",pos:"C",nbaId:"1641798",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Sacramento Kings",draftPick:58},
+  {name:"Maxime Raynaud",team:"Sacramento Kings",pos:"C",nbaId:"1642875",college:"Stanford",conference:"Pac-12",region:"West",colors:["#8C1515", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Sacramento Kings",draftPick:58},
   {name:"Domantas Sabonis",team:"Sacramento Kings",pos:"C",nbaId:"1627734",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2016,draftTeam:"Oklahoma City Thunder",draftPick:11},
   {name:"Dennis Schroder",team:"Sacramento Kings",pos:"PG",nbaId:"203471",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2013,draftTeam:"Atlanta Hawks",draftPick:17},
   {name:"Russell Westbrook",team:"Sacramento Kings",pos:"PG",nbaId:"201566",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2008,draftTeam:"Seattle SuperSonics",draftPick:4},
   {name:"De'Aaron Fox",team:"San Antonio Spurs",pos:"PG",nbaId:"1628368",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2017,draftTeam:"Sacramento Kings",draftPick:5},
   {name:"Isaiah Stevens",team:"Sacramento Kings",pos:"PG",nbaId:"1631269",college:"Colorado State",conference:"Mountain West",region:"West",colors:["#1E4D2B", "#C8C372"],draftRound:0,draftYear:2022,draftTeam:"Undrafted",draftPick:0},
   {name:"Harrison Barnes",team:"San Antonio Spurs",pos:"SF",nbaId:"203084",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:1,draftYear:2012,draftTeam:"Golden State Warriors",draftPick:7},
-  {name:"Stephon Castle",team:"San Antonio Spurs",pos:"PG",nbaId:"1641727",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"San Antonio Spurs",draftPick:4},
-  {name:"Julian Champagnie",team:"San Antonio Spurs",pos:"SF",nbaId:"1630581",college:"St. John's",conference:"Big East",region:"Northeast",colors:["#CC0000", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"San Antonio Spurs",draftPick:59},
-  {name:"Harrison Ingram",team:"San Antonio Spurs",pos:"SF",nbaId:"1641739",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"San Antonio Spurs",draftPick:57},
+  {name:"Stephon Castle",team:"San Antonio Spurs",pos:"PG",nbaId:"1642264",college:"Connecticut",conference:"Big East",region:"Northeast",colors:["#002868", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"San Antonio Spurs",draftPick:4},
+  {name:"Julian Champagnie",team:"San Antonio Spurs",pos:"SF",nbaId:"1630577",college:"St. John's",conference:"Big East",region:"Northeast",colors:["#CC0000", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"San Antonio Spurs",draftPick:59},
+  {name:"Harrison Ingram",team:"San Antonio Spurs",pos:"SF",nbaId:"1631127",college:"North Carolina",conference:"ACC",region:"Southeast",colors:["#7BAFD4", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"San Antonio Spurs",draftPick:57},
   {name:"Keldon Johnson",team:"San Antonio Spurs",pos:"SF",nbaId:"1629640",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"San Antonio Spurs",draftPick:29},
-  {name:"Luke Kornet",team:"San Antonio Spurs",pos:"C",nbaId:"1628403",college:"Vanderbilt",conference:"SEC",region:"Southeast",colors:["#866D4B", "#000000"],draftRound:0,draftYear:2017,draftTeam:"Undrafted",draftPick:0},
+  {name:"Luke Kornet",team:"San Antonio Spurs",pos:"C",nbaId:"1628436",college:"Vanderbilt",conference:"SEC",region:"Southeast",colors:["#866D4B", "#000000"],draftRound:0,draftYear:2017,draftTeam:"Undrafted",draftPick:0},
   {name:"Jordan McLaughlin",team:"San Antonio Spurs",pos:"PG",nbaId:"1629162",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:0,draftYear:2019,draftTeam:"Undrafted",draftPick:0},
-  {name:"Collin Murray-Boyles",team:"Toronto Raptors",pos:"PF",nbaId:"1642121",college:"South Carolina",conference:"SEC",region:"Southeast",colors:["#73000A", "#000000"],draftRound:2,draftYear:2025,draftTeam:"San Antonio Spurs",draftPick:40},
+  {name:"Collin Murray-Boyles",team:"Toronto Raptors",pos:"PF",nbaId:"1642867",college:"South Carolina",conference:"SEC",region:"Southeast",colors:["#73000A", "#000000"],draftRound:2,draftYear:2025,draftTeam:"San Antonio Spurs",draftPick:40},
   {name:"Jakob Poeltl",team:"Toronto Raptors",pos:"C",nbaId:"1627751",college:"Utah",conference:"Pac-12",region:"West",colors:["#CC0000", "#000000"],draftRound:1,draftYear:2016,draftTeam:"Toronto Raptors",draftPick:9},
   {name:"Victor Wembanyama",team:"San Antonio Spurs",pos:"C",nbaId:"1641705",college:"None (International)",conference:"N/A",region:"N/A",colors:[],draftRound:1,draftYear:2023,draftTeam:"San Antonio Spurs",draftPick:1},
-  {name:"Chucky Hepburn",team:"San Antonio Spurs",pos:"PG",nbaId:"1631270",college:"Wisconsin",conference:"Big Ten",region:"Midwest",colors:["#C5050C", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
-  {name:"Jeremy Sochan",team:"San Antonio Spurs",pos:"PF",nbaId:"1631109",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2022,draftTeam:"San Antonio Spurs",draftPick:9},
-  {name:"Ochai Agbaji",team:"Brooklyn Nets",pos:"SG",nbaId:"1631119",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2022,draftTeam:"Cleveland Cavaliers",draftPick:14},
+  {name:"Chucky Hepburn",team:"San Antonio Spurs",pos:"PG",nbaId:"1631253",college:"Wisconsin",conference:"Big Ten",region:"Midwest",colors:["#C5050C", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
+  {name:"Jeremy Sochan",team:"San Antonio Spurs",pos:"PF",nbaId:"1631110",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2022,draftTeam:"San Antonio Spurs",draftPick:9},
+  {name:"Ochai Agbaji",team:"Brooklyn Nets",pos:"SG",nbaId:"1630534",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2022,draftTeam:"Cleveland Cavaliers",draftPick:14},
   {name:"Scottie Barnes",team:"Toronto Raptors",pos:"PF",nbaId:"1630567",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:1,draftYear:2021,draftTeam:"Toronto Raptors",draftPick:4},
   {name:"RJ Barrett",team:"Toronto Raptors",pos:"SF",nbaId:"1629628",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2019,draftTeam:"New York Knicks",draftPick:3},
-  {name:"Gradey Dick",team:"Toronto Raptors",pos:"SG",nbaId:"1641710",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2023,draftTeam:"Toronto Raptors",draftPick:13},
+  {name:"Gradey Dick",team:"Toronto Raptors",pos:"SG",nbaId:"1641711",college:"Kansas",conference:"Big 12",region:"Midwest",colors:["#0051A5", "#E8000D"],draftRound:1,draftYear:2023,draftTeam:"Toronto Raptors",draftPick:13},
   {name:"Brandon Ingram",team:"Toronto Raptors",pos:"SF",nbaId:"1627742",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2016,draftTeam:"Los Angeles Lakers",draftPick:2},
-  {name:"Sandro Mamukelashvili",team:"Toronto Raptors",pos:"PF",nbaId:"1630538",college:"Seton Hall",conference:"Big East",region:"Northeast",colors:["#005FAC", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"Milwaukee Bucks",draftPick:54},
-  {name:"Jonathan Mogbo",team:"Toronto Raptors",pos:"PF",nbaId:"1641802",college:"San Francisco",conference:"WCC",region:"West",colors:["#005B96", "#CFC493"],draftRound:2,draftYear:2024,draftTeam:"Toronto Raptors",draftPick:33},
+  {name:"Sandro Mamukelashvili",team:"Toronto Raptors",pos:"PF",nbaId:"1630572",college:"Seton Hall",conference:"Big East",region:"Northeast",colors:["#005FAC", "#FFFFFF"],draftRound:2,draftYear:2021,draftTeam:"Milwaukee Bucks",draftPick:54},
+  {name:"Jonathan Mogbo",team:"Toronto Raptors",pos:"PF",nbaId:"1642367",college:"San Francisco",conference:"WCC",region:"West",colors:["#005B96", "#CFC493"],draftRound:2,draftYear:2024,draftTeam:"Toronto Raptors",draftPick:33},
   {name:"Immanuel Quickley",team:"Toronto Raptors",pos:"PG",nbaId:"1630193",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:1,draftYear:2020,draftTeam:"New York Knicks",draftPick:25},
-  {name:"Jamal Shead",team:"Toronto Raptors",pos:"PG",nbaId:"1641803",college:"Houston",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Toronto Raptors",draftPick:46},
+  {name:"Jamal Shead",team:"Toronto Raptors",pos:"PG",nbaId:"1642347",college:"Houston",conference:"American",region:"South",colors:["#C8102E", "#FFFFFF"],draftRound:2,draftYear:2024,draftTeam:"Toronto Raptors",draftPick:46},
   {name:"Ja'Kobe Walter",team:"Toronto Raptors",pos:"SG",nbaId:"1641738",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2024,draftTeam:"Toronto Raptors",draftPick:19},
-  {name:"Oscar Tshiebwe",team:"Utah Jazz",pos:"C",nbaId:"1630557",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
+  {name:"Oscar Tshiebwe",team:"Utah Jazz",pos:"C",nbaId:"1631131",college:"Kentucky",conference:"SEC",region:"Southeast",colors:["#0033A0", "#FFFFFF"],draftRound:0,draftYear:2023,draftTeam:"Undrafted",draftPick:0},
   {name:"Kyle Anderson",team:"Minnesota Timberwolves",pos:"SF",nbaId:"203937",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2014,draftTeam:"San Antonio Spurs",draftPick:30},
-  {name:"Walter Clayton Jr.",team:"Memphis Grizzlies",pos:"PG",nbaId:"1641805",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2025,draftTeam:"Utah Jazz",draftPick:32},
-  {name:"Isaiah Collier",team:"Utah Jazz",pos:"PG",nbaId:"1641724",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2024,draftTeam:"Utah Jazz",draftPick:29},
-  {name:"Kyle Filipowski",team:"Utah Jazz",pos:"C",nbaId:"1641713",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Utah Jazz",draftPick:16},
-  {name:"Taylor Hendricks",team:"Utah Jazz",pos:"SF",nbaId:"1641806",college:"UCF",conference:"American",region:"South",colors:["#BA0C2F", "#000000"],draftRound:1,draftYear:2023,draftTeam:"Utah Jazz",draftPick:9},
-  {name:"Walker Kessler",team:"Utah Jazz",pos:"C",nbaId:"1631218",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2022,draftTeam:"Utah Jazz",draftPick:22},
+  {name:"Walter Clayton Jr.",team:"Memphis Grizzlies",pos:"PG",nbaId:"1642383",college:"Florida",conference:"SEC",region:"Southeast",colors:["#0021A5", "#FA4616"],draftRound:1,draftYear:2025,draftTeam:"Utah Jazz",draftPick:32},
+  {name:"Isaiah Collier",team:"Utah Jazz",pos:"PG",nbaId:"1642264",college:"USC",conference:"Pac-12",region:"West",colors:["#990000", "#FFCC00"],draftRound:1,draftYear:2024,draftTeam:"Utah Jazz",draftPick:29},
+  {name:"Kyle Filipowski",team:"Utah Jazz",pos:"C",nbaId:"1642271",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2024,draftTeam:"Utah Jazz",draftPick:16},
+  {name:"Taylor Hendricks",team:"Utah Jazz",pos:"SF",nbaId:"1641707",college:"UCF",conference:"American",region:"South",colors:["#BA0C2F", "#000000"],draftRound:1,draftYear:2023,draftTeam:"Utah Jazz",draftPick:9},
+  {name:"Walker Kessler",team:"Utah Jazz",pos:"C",nbaId:"1631117",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:1,draftYear:2022,draftTeam:"Utah Jazz",draftPick:22},
   {name:"Kevin Love",team:"Utah Jazz",pos:"PF",nbaId:"201567",college:"UCLA",conference:"Pac-12",region:"West",colors:["#2D68C4", "#F2A900"],draftRound:1,draftYear:2008,draftTeam:"Minnesota Timberwolves",draftPick:5},
   {name:"Lauri Markkanen",team:"Utah Jazz",pos:"PF",nbaId:"1628374",college:"Arizona",conference:"Pac-12",region:"West",colors:["#003366", "#CC0033"],draftRound:1,draftYear:2017,draftTeam:"Chicago Bulls",draftPick:7},
-  {name:"Brice Sensabaugh",team:"Utah Jazz",pos:"SF",nbaId:"1641715",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Utah Jazz",draftPick:28},
-  {name:"Cody Williams",team:"Utah Jazz",pos:"SF",nbaId:"1641735",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:1,draftYear:2024,draftTeam:"Utah Jazz",draftPick:10},
-  {name:"Keyonte George",team:"Utah Jazz",pos:"PG",nbaId:"1641714",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2023,draftTeam:"Utah Jazz",draftPick:16},
-  {name:"Marvin Bagley III",team:"Dallas Mavericks",pos:"PF",nbaId:"1628964",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Sacramento Kings",draftPick:2},
-  {name:"Bub Carrington",team:"Washington Wizards",pos:"SG",nbaId:"1641807",college:"Pittsburgh",conference:"ACC",region:"Northeast",colors:["#00274C", "#CEC499"],draftRound:1,draftYear:2024,draftTeam:"Washington Wizards",draftPick:18},
-  {name:"Tre Johnson",team:"Washington Wizards",pos:"SG",nbaId:"1642124",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Washington Wizards",draftPick:15},
+  {name:"Brice Sensabaugh",team:"Utah Jazz",pos:"SF",nbaId:"1641729",college:"Ohio State",conference:"Big Ten",region:"Midwest",colors:["#BB0000", "#FFFFFF"],draftRound:1,draftYear:2023,draftTeam:"Utah Jazz",draftPick:28},
+  {name:"Cody Williams",team:"Utah Jazz",pos:"SF",nbaId:"1642262",college:"Colorado",conference:"Pac-12",region:"West",colors:["#CFB87C", "#000000"],draftRound:1,draftYear:2024,draftTeam:"Utah Jazz",draftPick:10},
+  {name:"Keyonte George",team:"Utah Jazz",pos:"PG",nbaId:"1641718",college:"Baylor",conference:"Big 12",region:"South",colors:["#003015", "#FFB81C"],draftRound:1,draftYear:2023,draftTeam:"Utah Jazz",draftPick:16},
+  {name:"Marvin Bagley III",team:"Dallas Mavericks",pos:"PF",nbaId:"1628963",college:"Duke",conference:"ACC",region:"Southeast",colors:["#003087", "#FFFFFF"],draftRound:1,draftYear:2018,draftTeam:"Sacramento Kings",draftPick:2},
+  {name:"Bub Carrington",team:"Washington Wizards",pos:"SG",nbaId:"1642267",college:"Pittsburgh",conference:"ACC",region:"Northeast",colors:["#00274C", "#CEC499"],draftRound:1,draftYear:2024,draftTeam:"Washington Wizards",draftPick:18},
+  {name:"Tre Johnson",team:"Washington Wizards",pos:"SG",nbaId:"1642848",college:"Texas",conference:"Big 12",region:"South",colors:["#BF5700", "#FFFFFF"],draftRound:1,draftYear:2025,draftTeam:"Washington Wizards",draftPick:15},
   {name:"Corey Kispert",team:"Atlanta Hawks",pos:"SF",nbaId:"1630557",college:"Gonzaga",conference:"WCC",region:"West",colors:["#00205B", "#CF0A2C"],draftRound:1,draftYear:2021,draftTeam:"Washington Wizards",draftPick:15},
   {name:"CJ McCollum",team:"Atlanta Hawks",pos:"SG",nbaId:"203468",college:"Lehigh",conference:"Patriot League",region:"Northeast",colors:["#653600", "#FFFFFF"],draftRound:1,draftYear:2013,draftTeam:"Portland Trail Blazers",draftPick:10},
   {name:"Khris Middleton",team:"Dallas Mavericks",pos:"SF",nbaId:"203114",college:"Texas A&M",conference:"SEC",region:"South",colors:["#500000", "#FFFFFF"],draftRound:2,draftYear:2012,draftTeam:"Detroit Pistons",draftPick:39},
-  {name:"Sharife Cooper",team:"Washington Wizards",pos:"PG",nbaId:"1630538",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:2,draftYear:2021,draftTeam:"Atlanta Hawks",draftPick:48},
-  {name:"Jamir Watkins",team:"Washington Wizards",pos:"SF",nbaId:"1641809",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:2,draftYear:2024,draftTeam:"Washington Wizards",draftPick:49},
+  {name:"Sharife Cooper",team:"Washington Wizards",pos:"PG",nbaId:"1630536",college:"Auburn",conference:"SEC",region:"Southeast",colors:["#0C2340", "#E87722"],draftRound:2,draftYear:2021,draftTeam:"Atlanta Hawks",draftPick:48},
+  {name:"Jamir Watkins",team:"Washington Wizards",pos:"SF",nbaId:"1642406",college:"Florida State",conference:"ACC",region:"Southeast",colors:["#782F40", "#CEB888"],draftRound:2,draftYear:2024,draftTeam:"Washington Wizards",draftPick:49},
 ];
 
 const seen_inf = new Set();
@@ -853,6 +937,7 @@ function loadPlayer() {
   document.getElementById('autocompleteList').style.display = 'none';
 
   renderGuessSlots();
+  resetHints();
   document.getElementById('guessInput').focus();
 }
 
@@ -874,6 +959,86 @@ function renderGuessSlots() {
     }
     c.appendChild(slot);
   }
+}
+
+
+// ── HINTS ──
+let hintsRevealed = {region:false, conference:false, colors:false};
+let hintPanelOpen = false;
+
+function getRemainingHints(){ return Object.values(hintsRevealed).filter(v=>!v).length; }
+
+function resetHints(){
+  hintsRevealed = {region:false, conference:false, colors:false};
+  hintPanelOpen = false;
+  ['region','conference','colors'].forEach(type=>{
+    const btn=document.getElementById('hintBtn-'+type);
+    const val=document.getElementById('hintVal-'+type);
+    if(btn){ btn.classList.remove('revealed',type); btn.onclick=()=>revealHint(type); btn.style.display=''; if(val){val.textContent='';val.innerHTML='';} }
+  });
+  const panel=document.getElementById('hintOptions');
+  const triggerBtn=document.getElementById('hintTriggerBtn');
+  const label=panel?panel.querySelector('.hint-options-label'):null;
+  if(panel){ panel.classList.remove('open'); }
+  if(triggerBtn){ triggerBtn.classList.remove('open'); triggerBtn.style.display=''; }
+  if(label){ label.style.display=''; }
+  const badge=document.getElementById('hintCountBadge');
+  if(badge) badge.textContent='3 remaining';
+  const section=document.getElementById('hintSection');
+  if(section) section.style.display='';
+}
+
+function updateHintTrigger(){
+  const remaining=getRemainingHints();
+  const btn=document.getElementById('hintTriggerBtn');
+  const panel=document.getElementById('hintOptions');
+  const anyRevealed=Object.values(hintsRevealed).some(v=>v);
+  if(remaining===0){
+    if(btn) btn.style.display='none';
+    if(panel){ panel.classList.add('open'); }
+    hintPanelOpen=true;
+    const label=panel?panel.querySelector('.hint-options-label'):null;
+    if(label) label.style.display='none';
+    ['region','conference','colors'].forEach(type=>{
+      if(!hintsRevealed[type]){ const b=document.getElementById('hintBtn-'+type); if(b) b.style.display='none'; }
+    });
+  } else {
+    const badge=document.getElementById('hintCountBadge');
+    if(badge) badge.textContent=remaining+' remaining';
+    if(anyRevealed && panel && btn){ panel.classList.add('open'); btn.classList.add('open'); hintPanelOpen=true; }
+  }
+}
+
+function toggleHintPanel(){
+  if(gameOver) return;
+  const anyRevealed=Object.values(hintsRevealed).some(v=>v);
+  if(anyRevealed) return;
+  hintPanelOpen=!hintPanelOpen;
+  const panel=document.getElementById('hintOptions');
+  const btn=document.getElementById('hintTriggerBtn');
+  if(panel) panel.classList.toggle('open',hintPanelOpen);
+  if(btn) btn.classList.toggle('open',hintPanelOpen);
+}
+
+function revealHint(type){
+  if(hintsRevealed[type]||gameOver) return;
+  hintsRevealed[type]=true;
+  const btn=document.getElementById('hintBtn-'+type);
+  const valEl=document.getElementById('hintVal-'+type);
+  if(!btn||!valEl) return;
+  btn.classList.add('revealed',type);
+  btn.onclick=null;
+  if(type==='region'){
+    valEl.textContent='Located in the '+player.region+' region of the US';
+  } else if(type==='conference'){
+    valEl.textContent='Competes in the '+player.conference;
+  } else if(type==='colors'){
+    valEl.textContent="School's primary colors:";
+    const row=document.createElement('div'); row.className='color-swatches'; row.style.marginTop='6px';
+    (player.colors||[]).forEach(c=>{const sw=document.createElement('div');sw.className='swatch';sw.style.background=c;row.appendChild(sw);});
+    valEl.appendChild(row);
+  }
+  updateHintTrigger();
 }
 
 function submitGuess() {
@@ -906,6 +1071,7 @@ function endRound(won) {
 
   document.getElementById('inputArea').style.display = 'none';
   document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('hintSection').style.display = 'none';
 
   const panel = document.getElementById('resultPanel');
   panel.style.display = 'block';
